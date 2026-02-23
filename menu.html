@@ -32,6 +32,7 @@
 
         #drinkModal, #serviceOverlay { display: none; }
 
+        /* Responsive Sidebar Logic */
         #sidebar {
             width: 220px;
             background-color: var(--win-grey);
@@ -41,6 +42,35 @@
             padding: 10px;
             box-shadow: inset -1px -1px 0 #000;
             flex-shrink: 0;
+            transition: transform 0.3s ease;
+            z-index: 9999;
+        }
+
+        #hamburger-toggle {
+            display: none;
+            background: var(--win-grey);
+            border: 2px solid;
+            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
+            padding: 5px 10px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            #sidebar {
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                transform: translateX(-100%);
+            }
+            #sidebar.open {
+                transform: translateX(0);
+            }
+            #hamburger-toggle {
+                display: block;
+            }
         }
 
         .profile-card {
@@ -65,7 +95,7 @@
             border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
             padding: 8px;
             margin-bottom: 5px;
-            text-align: center; /* Fixed: Forced center alignment */
+            text-align: center;
             font-weight: bold;
             cursor: pointer;
             font-size: 12px;
@@ -104,6 +134,7 @@
             font-size: 13px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             flex-shrink: 0;
         }
 
@@ -182,6 +213,11 @@
             flex-shrink: 0;
         }
 
+        /* Responsive Cart hide on small screens if menu is open */
+        @media (max-width: 768px) {
+            #order-summary { width: 200px; }
+        }
+
         #cart-items {
             flex: 1;
             overflow-y: auto;
@@ -206,155 +242,12 @@
             padding: 10px;
             font-family: "Courier New", monospace;
             font-size: 20px;
-            font-weight: bold;
-            text-align: right;
-            border: 2px solid var(--win-border-dark);
-        }
-
-        .modal-box {
-            background: var(--win-grey);
-            border: 2px solid;
-            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
-            width: 300px;
-            padding: 2px;
-        }
-
-        .status-bar {
-            background: var(--win-grey);
-            border-top: 2px solid var(--win-border-dark);
-            padding: 3px 10px;
-            font-size: 11px;
-            display: flex;
-            justify-content: space-between;
-            flex-shrink: 0;
-        }
-
-        /* Restricted Appearance */
-        .restricted-locked {
-            filter: grayscale(1);
-        }
-        .logout-unlocked {
-            pointer-events: auto !important;
-            filter: none !important;
-        }
-
-        .sub-filter-btn {
-            background: var(--win-grey);
-            border: 2px solid;
-            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
-            padding: 2px 8px;
-            margin-right: 4px;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        .search-container {
-            position: relative;
-            margin-left: 10px;
-            display: inline-block;
-        }
-        #searchInput {
-            border: 2px solid;
-            border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
-            padding: 3px;
-            width: 200px;
-            font-family: "MS Sans Serif";
-        }
-        #searchDropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 250px;
-            background: #fff;
-            border: 1px solid #000;
-            z-index: 999;
-            display: none;
-            max-height: 300px;
-            overflow-y: auto;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-        }
-        .search-item {
-            display: flex;
-            align-items: center;
-            padding: 5px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
-        }
-        .search-item:hover { background: #000080; color: #fff; }
-        .search-item img { width: 30px; height: 30px; margin-right: 10px; border: 1px solid #ccc; background: #fff; }
-
-        .best-seller-tag {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: red; color: white;
-            font-size: 9px; padding: 2px 4px;
-            border: 1px solid black; z-index: 5;
-        }
-
-        /* Dashboard Styles */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .stat-card {
-            background: #fff;
-            border: 1px solid #808080;
-            padding: 8px;
-            text-align: center;
-            box-shadow: 1px 1px 0 #000;
-        }
-        .history-box {
-            width: 120px;
-            height: 80px;
-            background: #fff;
-            border: 2px solid var(--win-border-dark);
-            display: inline-block;
-            margin: 5px;
-            padding: 5px;
-            cursor: pointer;
-            font-size: 10px;
-            vertical-align: top;
-        }
-        .history-box:hover { border-color: var(--win-blue); }
-
-        /* Modal specific button centering */
-        #modalButtons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            padding-bottom: 10px;
-        }
-        #modalButtons .nav-button {
-            width: 80px;
-            margin: 0;
-        }
-
-        /* Loading Bar Style */
-        .progress-container {
-            border: 2px solid;
-            border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
-            background: #fff;
-            height: 25px;
-            display: flex;
-            padding: 2px;
-            margin: 10px 0;
-        }
-        .progress-segment {
-            background: var(--win-blue);
-            width: 10%;
-            height: 100%;
-            margin-right: 2px;
-        }
-    </style>
+            font-weight: bold; text-align: right; border: 2px solid var(--win-border-dark); } .modal-box { background: var(--win-grey); border: 2px solid; border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light); width: 300px; padding: 2px; } .status-bar { background: var(--win-grey); border-top: 2px solid var(--win-border-dark); padding: 3px 10px; font-size: 11px; display: flex; justify-content: space-between; flex-shrink: 0; } .restricted-locked { filter: grayscale(1); } .logout-unlocked { pointer-events: auto !important; filter: none !important; } .sub-filter-btn { background: var(--win-grey); border: 2px solid; border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light); padding: 2px 8px; margin-right: 4px; cursor: pointer; font-size: 11px; font-weight: bold; } .search-container { position: relative; margin-left: 10px; display: inline-block; } #searchInput { border: 2px solid; border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark); padding: 3px; width: 200px; font-family: "MS Sans Serif"; } #searchDropdown { position: absolute; top: 100%; left: 0; width: 250px; background: #fff; border: 1px solid #000; z-index: 999; display: none; max-height: 300px; overflow-y: auto; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); } .search-item { display: flex; align-items: center; padding: 5px; cursor: pointer; border-bottom: 1px solid #eee; } .search-item:hover { background: #000080; color: #fff; } .search-item img { width: 30px; height: 30px; margin-right: 10px; border: 1px solid #ccc; background: #fff; } .best-seller-tag { position: absolute; top: -5px; right: -5px; background: red; color: white; font-size: 9px; padding: 2px 4px; border: 1px solid black; z-index: 5; } .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 20px; } .stat-card { background: #fff; border: 1px solid #808080; padding: 5px; text-align: center; box-shadow: 1px 1px 0 #000; font-size: 10px; } .stat-card b { display: block; height: 2.4em; overflow: hidden; } .stat-card span { font-size: 14px !important; } .history-box { width: 120px; height: 80px; background: #fff; border: 2px solid var(--win-border-dark); display: inline-block; margin: 5px; padding: 5px; cursor: pointer; font-size: 10px; vertical-align: top; } .history-box:hover { border-color: var(--win-blue); } #modalButtons { display: flex; gap: 10px; justify-content: center; padding-bottom: 10px; flex-wrap: wrap; } #modalButtons .nav-button { width: auto; min-width: 80px; margin: 0; padding: 5px 15px; } .progress-container { border: 2px solid; border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark); background: #fff; height: 25px; display: flex; padding: 2px; margin: 10px 0; } .progress-segment { background: var(--win-blue); width: 10%; height: 100%; margin-right: 2px; } </style>
 </head>
 <body onload="initMenu()">
 
     <div id="customModal" style="display:none;">
-        <div class="modal-box" style="width: 450px;">
+        <div class="modal-box" style="width: 450px; max-width: 90%;">
             <div class="title-bar"><span id="modalTitle">SYSTEM_MESSAGE.EXE</span></div>
             <div style="padding: 20px; background: var(--win-grey); text-align: center;">
                 <div id="modalContent">
@@ -366,7 +259,7 @@
     </div>
 
     <div id="serviceOverlay">
-        <div class="modal-box" style="width: 400px;">
+        <div class="modal-box" style="width: 400px; max-width: 90%;">
             <div class="title-bar"><span>SYSTEM_INITIALIZATION.EXE</span></div>
             <div style="padding: 20px; text-align: center;">
                 <h2 style="margin-top: 0;">SELECT SERVICE TYPE</h2>
@@ -402,19 +295,24 @@
     <div id="main-terminal">
         <div id="main-frame-wrapper" class="window-frame">
             <div class="title-bar">
-                <span id="win-title">POS_MENU_EXPLORER.EXE</span>
+                <div style="display: flex; align-items: center;">
+                    <button id="hamburger-toggle" onclick="toggleSidebar()">☰ START</button>
+                    <span id="win-title">POS_MENU_EXPLORER.EXE</span>
+                </div>
                 <span id="top-clock">00:00:00</span>
             </div>
             
             <div id="toolbar" style="padding: 10px; background: var(--win-grey); border-bottom: 1px solid #808080; font-size: 12px;">
-                <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                    <b>Category:</b> 
-                    <select id="categorySelect" onchange="renderMenu()" style="margin-left:5px;">
-                        <option value="ALL">ALL PRODUCTS</option>
-                        <option value="FOOD">FOOD</option>
-                        <option value="DRINKS">DRINKS</option>
-                        <option value="OTHER">OTHER</option>
-                    </select>
+                <div style="display: flex; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <b>Category:</b> 
+                        <select id="categorySelect" onchange="renderMenu()" style="margin-left:5px;">
+                            <option value="ALL">ALL PRODUCTS</option>
+                            <option value="FOOD">FOOD</option>
+                            <option value="DRINKS">DRINKS</option>
+                            <option value="OTHER">OTHER</option>
+                        </select>
+                    </div>
 
                     <div class="search-container">
                         <b>Search:</b>
@@ -422,14 +320,15 @@
                         <div id="searchDropdown"></div>
                     </div>
                 </div>
-                <div id="subFilters">
-                    <button class="sub-filter-btn active" onclick="setSubFilter('ALL', this)">RESET</button>
+                <div id="subFilters" style="overflow-x: auto; white-space: nowrap; padding-bottom: 5px;">
+                    <button class="sub-filter-btn active" onclick="setSubFilter('ALL', this)">ALL</button>
                     <button class="sub-filter-btn" onclick="setSubFilter('Nasi', this)">NASI</button>
-                    <button class="sub-filter-btn" onclick="setSubFilter('Mee', this)">MEE/MAGGI</button>
+                    <button class="sub-filter-btn" onclick="setSubFilter('Mee', this)">MEE</button>
                     <button class="sub-filter-btn" onclick="setSubFilter('Ayam', this)">AYAM</button>
                     <button class="sub-filter-btn" onclick="setSubFilter('Daging', this)">DAGING</button>
                     <button class="sub-filter-btn" onclick="setSubFilter('Sotong', this)">SOTONG</button>
                     <button class="sub-filter-btn" onclick="setSubFilter('Udang', this)">UDANG</button>
+                    <button class="sub-filter-btn" onclick="setSubFilter('Perut', this)">OTHER</button>
                 </div>
             </div>
 
@@ -442,7 +341,7 @@
                     <div class="total-box">
                         RM <span id="cart-total">0.00</span>
                     </div>
-                    <button class="nav-button" id="pay-btn" style="background:#008000; color:white; margin-top:10px;" onclick="proceedToPayment()">PROCEED TO PAYMENT >> </button>
+                    <button class="nav-button" id="pay-btn" style="background:#008000; color:white; margin-top:10px;" onclick="proceedToPayment()">PAY >></button>
                 </div>
             </div>
 
@@ -462,8 +361,8 @@
                 <div id="modalItemName" style="font-weight:bold; margin-top:5px;">ITEM</div>
             </div>
             <div class="option-container" style="display:flex; gap:10px; padding:15px;">
-                <div class="temp-option" style="flex:1; background:var(--win-grey); border:2px solid; border-color:var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light); padding:10px; cursor:pointer; text-align: center;" onclick="confirmDrink('HOT')">♨️ HOT<br>(Base Price)</div>
-                <div class="temp-option" style="flex:1; background:var(--win-grey); border:2px solid; border-color:var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light); padding:10px; cursor:pointer; text-align: center;" onclick="confirmDrink('COLD')">❄️ COLD<br>(+RM 0.50)</div>
+                <div class="temp-option" style="flex:1; background:var(--win-grey); border:2px solid; border-color:var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light); padding:10px; cursor:pointer; text-align: center;" onclick="confirmDrink('HOT')">♨️ HOT<br>(Base)</div>
+                <div class="temp-option" style="flex:1; background:var(--win-grey); border:2px solid; border-color:var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light); padding:10px; cursor:pointer; text-align: center;" onclick="confirmDrink('COLD')">❄️ COLD<br>(+0.50)</div>
             </div>
             <div style="text-align:center; padding-bottom:10px;">
                 <button class="nav-button" style="width:80%; margin: 0 auto;" onclick="closeDrinkModal()">CANCEL</button>
@@ -580,6 +479,10 @@
             localStorage.setItem("pos_inventory_db", JSON.stringify(menuData));
         }
 
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
         function initMenu() {
             userProfile = JSON.parse(localStorage.getItem("loggedInUser"));
             if (!userProfile) { window.location.href = "index.html"; return; }
@@ -630,7 +533,6 @@
                 total += parseFloat(t.amount);
                 if(t.cart) {
                     t.cart.forEach(c => {
-                        // Clean the name to group properly (remove [HOT]/[COLD] and (T/A))
                         let cleanName = c.name.split(" [")[0].replace(" (T/A)", "");
                         items[cleanName] = (items[cleanName] || 0) + 1;
                     });
@@ -729,6 +631,8 @@
             const winTitle = document.getElementById('win-title');
             container.innerHTML = '';
             
+            if(window.innerWidth <= 1024) document.getElementById('sidebar').classList.remove('open');
+
             if (view === 'MENU') {
                 toolbar.style.display = 'block';
                 winTitle.innerText = "POS_MENU_EXPLORER.EXE";
@@ -810,7 +714,7 @@
                         <td><input type="number" id="prc-${index}" step="0.1" value="${item.price.toFixed(2)}" style="width:60px"></td>
                         <td>
                             <button onclick="updateItemDetails(${index})">SAVE</button>
-                            <button onclick="toggleItemVisibility(${index}, true)" style="background:#f00; color:#fff;">DELETE</button>
+                            <button onclick="toggleItemVisibility(${index}, true)" style="background:#f00; color:#fff;">DEL</button>
                         </td>
                     </tr>`;
                 } else {
@@ -832,7 +736,7 @@
                     </select>
                     <input type="text" id="new-img" placeholder="Image Name">
                     <input type="number" id="new-stock" placeholder="Initial Stock">
-                    <button class="nav-button" onclick="addNewItem()" style="background:var(--win-blue); color:white;">+ ADD ITEM</button>
+                    <button class="nav-button" onclick="addNewItem()" style="background:var(--win-blue); color:white; padding: 2px;">+ ADD</button>
                 </div>
             </div>`;
 
@@ -869,12 +773,12 @@
             
             let html = `<div class="profile-card" style="background:#fff;">
                 <h2 style="margin:0; color:var(--win-blue);">TODAY'S PERFORMANCE</h2>
-                <p style="font-size:12px;"><b>Date:</b> ${now.toDateString()} | <b>Day:</b> ${now.toLocaleDateString('en-US', {weekday:'long'})} | <b>Total: RM ${stats.total.toFixed(2)}</b></p>
+                <p style="font-size:12px;"><b>Total: RM ${stats.total.toFixed(2)}</b></p>
                 <hr>
                 <div class="dashboard-grid">`;
             
             for (let item in stats.items) {
-                html += `<div class="stat-card"><b>${item}</b><br><span style="font-size:16px; color:#d00;">${stats.items[item]}</span></div>`;
+                html += `<div class="stat-card"><b>${item}</b><br><span style="color:#d00;">${stats.items[item]}</span></div>`;
             }
 
             html += `</div></div>
@@ -996,7 +900,7 @@
             showWinMsg("DIAGNOSTIC.EXE", "Initializing hardware scan...", false);
             const modalText = document.getElementById('modalText');
             const btnContainer = document.getElementById('modalButtons');
-            btnContainer.innerHTML = ''; // Hide OK button during scan
+            btnContainer.innerHTML = ''; 
 
             let progress = 0;
             const progressHTML = `<div class="progress-container" id="prog-bar"></div>`;
@@ -1017,7 +921,7 @@
                     ok.onclick=()=>document.getElementById('customModal').style.display='none';
                     btnContainer.appendChild(ok);
                 }
-            }, 500); // 10 bars over 5 seconds (500ms per bar)
+            }, 500); 
         }
 
         function performFactoryReset() {
@@ -1113,9 +1017,17 @@
             btnContainer.innerHTML = '';
             
             if (restrictionMode) {
-                const closeBtn = document.createElement('button'); closeBtn.className='nav-button'; closeBtn.innerText="CLOSE"; 
+                const closeBtn = document.createElement('button'); 
+                closeBtn.className='nav-button'; closeBtn.innerText="CLOSE"; 
                 closeBtn.onclick=()=> { modal.style.display='none'; };
+                
+                const contactBtn = document.createElement('button'); 
+                contactBtn.className='nav-button'; contactBtn.innerText="CONTACT ADMIN"; 
+                contactBtn.style.background = "#000080"; contactBtn.style.color = "white";
+                contactBtn.onclick=()=> { window.location.href = "contact.html"; };
+                
                 btnContainer.appendChild(closeBtn);
+                btnContainer.appendChild(contactBtn);
             } else if (confirmMode) {
                 const y = document.createElement('button'); y.className='nav-button'; y.innerText="YES"; y.onclick=()=>{modal.style.display='none'; onConfirm();};
                 const n = document.createElement('button'); n.className='nav-button'; n.innerText="NO"; n.onclick=()=>modal.style.display='none';
@@ -1138,6 +1050,12 @@
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.search-container')) {
                 document.getElementById('searchDropdown').style.display = 'none';
+            }
+            // Sidebar auto-close logic
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('hamburger-toggle');
+            if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !toggle.contains(e.target)) {
+                sidebar.classList.remove('open');
             }
         });
     </script>
