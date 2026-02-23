@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUPPORT_TERMINAL.EXE - Und Performance</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <style>
+        :root {
+            --win-grey: #d4d0c8;
+            --win-blue: #000080;
+            --win-border-light: #ffffff;
+            --win-border-dark: #808080;
+            --brand-red: #980002;
+        }
+
+        body {
+            background-color: #008080; /* Classic Terminal Teal */
+            font-family: "MS Sans Serif", "Arial", sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            color: #000;
+        }
+
+        /* Title Bar Styling */
+        .title-bar {
+            background-color: var(--win-blue);
+            color: white;
+            padding: 4px 10px;
+            font-weight: bold;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Main Window Container */
+        main {
+            background-color: var(--win-grey);
+            border: 2px solid;
+            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
+            width: 90%;
+            max-width: 500px;
+            margin: 40px auto 20px auto;
+            box-shadow: 2px 2px 0 #000;
+        }
+
+        .window-content { padding: 20px; }
+
+        form { display: flex; flex-direction: column; }
+        
+        label { 
+            margin-bottom: 4px; 
+            font-size: 11px; 
+            font-weight: bold;
+        }
+
+        input, textarea {
+            background: #fff;
+            border: 2px solid;
+            border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+            padding: 8px;
+            margin-bottom: 15px;
+            font-family: "MS Sans Serif", sans-serif;
+            outline: none;
+        }
+
+        textarea { height: 100px; resize: none; }
+
+        button, .win-btn {
+            background: var(--win-grey);
+            border: 2px solid;
+            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
+            padding: 8px 15px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: "MS Sans Serif", sans-serif;
+        }
+
+        button:active, .win-btn:active {
+            border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+            padding: 9px 14px 7px 16px;
+        }
+
+        #sendBtn { width: 100%; }
+
+        /* Overlay & Modals */
+        .overlay { 
+            position: fixed; inset: 0; 
+            background: rgba(0,0,0,0.5); 
+            display: none; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 9999; 
+        }
+
+        .modal-box {
+            background: var(--win-grey);
+            border: 2px solid;
+            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
+            width: 350px;
+            padding: 2px;
+            text-align: center;
+        }
+
+        .modal-body { padding: 20px; font-size: 12px; }
+
+        .stars { display: flex; gap: 10px; justify-content: center; font-size: 1.5rem; color: #808080; cursor: pointer; margin: 15px 0; }
+        .stars i.active { color: #000080; }
+
+        /* Footer Redesign */
+        footer {
+            background: var(--win-grey);
+            border-top: 2px solid var(--win-border-dark);
+            padding: 15px;
+            text-align: center;
+            font-size: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            margin-top: auto;
+            line-height: 1.5;
+            color: #444;
+        }
+
+        .copy-email-box {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: #fff; padding: 4px 10px;
+            border: 1px solid var(--win-border-dark);
+            cursor: pointer; margin-bottom: 10px;
+            font-family: "MS Sans Serif", sans-serif;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .mini-spinner { border: 3px solid #ccc; border-top: 3px solid var(--win-blue); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin: 10px auto; }
+    </style>
+</head>
+<body>
+
+<main>
+    <div class="title-bar">
+        <span>CONTACT_US.EXE</span>
+        <span style="cursor:pointer;" onclick="window.location.href='index.html'">[X]</span>
+    </div>
+    <div class="window-content">
+        <p style="font-size: 11px; margin-bottom: 15px;">INITIALIZING SECURE UPLINK... PLEASE ENTER MESSAGE DETAILS.</p>
+        
+        <form id="contactForm">
+            <label>FULL_NAME:</label>
+            <input type="text" id="name" name="from_name" required placeholder="User Name">
+            
+            <label>EMAIL_ADDRESS:</label>
+            <input type="email" id="email" name="user_email" required placeholder="user@node.com">
+            
+            <label>MESSAGE_BODY:</label>
+            <textarea id="message" name="message" required placeholder="Type your inquiry..."></textarea>
+            
+            <button type="submit" id="sendBtn">SEND MESSAGE</button>
+        </form>
+    </div>
+</main>
+
+<div id="loader" class="overlay">
+    <div class="modal-box">
+        <div class="title-bar"><span>SYSTEM_BUSY</span></div>
+        <div class="modal-body">
+            <div class="mini-spinner"></div>
+            <p>ENCRYPTING & UPLOADING...</p>
+        </div>
+    </div>
+</div>
+
+<div id="successOverlay" class="overlay">
+    <div class="modal-box">
+        <div class="title-bar"><span>TRANSMISSION_SUCCESS</span></div>
+        <div class="modal-body">
+            <i class="fas fa-check-square" style="color: #008000; font-size: 2rem; margin-bottom: 10px;"></i>
+            <h3 style="margin: 0;">MESSAGE SENT</h3>
+            <p>Target: help.und2@gmail.com<br><br>Check terminal inbox for auto-reply.</p>
+            <button class="win-btn" onclick="showRating()">OK</button>
+        </div>
+    </div>
+</div>
+
+<div id="ratingOverlay" class="overlay">
+    <div class="modal-box">
+        <div class="title-bar"><span>USER_FEEDBACK</span></div>
+        <div class="modal-body">
+            <p>Rate your terminal experience:</p>
+            <div class="stars" id="starContainer">
+                <i class="fas fa-star" data-value="1"></i><i class="fas fa-star" data-value="2"></i>
+                <i class="fas fa-star" data-value="3"></i><i class="fas fa-star" data-value="4"></i>
+                <i class="fas fa-star" data-value="5"></i>
+            </div>
+            <div id="redirectSection" style="display: none;">
+                <div class="mini-spinner"></div>
+                <p>Redirecting in <span id="timer">10</span>s...</p>
+            </div>
+            <button class="win-btn" id="rateOkBtn" style="display:none; width:100%;" onclick="startRedirect()">SUBMIT & EXIT</button>
+            <button class="win-btn" id="noThanks" style="width:100%; margin-top:5px; font-weight:normal;" onclick="startRedirect()">Skip</button>
+        </div>
+    </div>
+</div>
+
+<div id="errorOverlay" class="overlay">
+    <div class="modal-box">
+        <div class="title-bar"><span>FATAL_ERROR</span></div>
+        <div class="modal-body">
+            <i class="fas fa-times-circle" style="color: #c00; font-size: 2rem; margin-bottom: 10px;"></i>
+            <p id="errorMsg">INVALID PACKET DATA</p>
+            <button class="win-btn" onclick="closeError()">RETRY</button>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="copy-email-box" onclick="copyEmail()">
+        <i class="fas fa-envelope" id="copyIcon" style="color:var(--brand-red)"></i>
+        <span id="copyText">help.und2@gmail.com</span>
+    </div>
+    <br>
+    © 1992-2003 UND Performance<br>
+    ALL RIGHTS RESERVED. UNAUTHORIZED ACCESS IS PROHIBITED.<br>
+    LOCAL NODE: BAYAN_LEPAS_PNG // TRACE_ROUTE: ENABLED
+</footer>
+
+<script>
+    // Logic remains 100% original as requested
+    const SERVICE_ID = "service_uowolix";
+    const TEMPLATE_ID = "template_p3rhohp";
+    const PUBLIC_KEY = "rYeUP18nvLoEZhmkf";
+
+    (function() { emailjs.init(PUBLIC_KEY); })();
+
+    function copyEmail() {
+        const email = "help.und2@gmail.com";
+        const copyText = document.getElementById("copyText");
+        const copyIcon = document.getElementById("copyIcon");
+        
+        navigator.clipboard.writeText(email).then(() => {
+            copyText.innerText = "COPIED!";
+            copyText.style.color = "#008000";
+            copyIcon.className = "fas fa-check";
+            setTimeout(() => {
+                copyText.innerText = email;
+                copyText.style.color = "#000";
+                copyIcon.className = "fas fa-envelope";
+            }, 2000);
+        });
+    }
+
+    const stars = document.querySelectorAll('.stars i');
+    const rateOkBtn = document.getElementById('rateOkBtn');
+
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            const val = this.getAttribute('data-value');
+            stars.forEach(s => s.classList.remove('active'));
+            for(let i=0; i<val; i++) { stars[i].classList.add('active'); }
+            rateOkBtn.style.display = 'block'; 
+        });
+    });
+
+    function showRating() {
+        document.getElementById('successOverlay').style.display = 'none';
+        document.getElementById('ratingOverlay').style.display = 'flex';
+    }
+
+    function closeError() { document.getElementById('errorOverlay').style.display = 'none'; }
+
+    function startRedirect() {
+        document.getElementById('rateOkBtn').style.display = 'none';
+        document.getElementById('noThanks').style.display = 'none';
+        document.getElementById('redirectSection').style.display = 'block';
+        let timeLeft = 10;
+        const countdown = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer').innerText = timeLeft;
+            if(timeLeft <= 0) { clearInterval(countdown); window.location.href = "index.html"; }
+        }, 1000);
+    }
+
+    document.getElementById('contactForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const email = document.getElementById('email').value;
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (!emailPattern.test(email)) {
+            document.getElementById('errorOverlay').style.display = 'flex';
+            return;
+        }
+
+        const btn = document.getElementById('sendBtn');
+        const loader = document.getElementById('loader');
+        btn.disabled = true;
+        loader.style.display = 'flex';
+
+        emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, this)
+            .then(function() {
+                loader.style.display = 'none';
+                document.getElementById('successOverlay').style.display = 'flex';
+                document.getElementById('contactForm').reset();
+            }, function(error) {
+                loader.style.display = 'none';
+                btn.disabled = false;
+                document.getElementById('errorMsg').innerText = "CONNECTION TIMEOUT.";
+                document.getElementById('errorOverlay').style.display = 'flex';
+            });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>UND PERFORMANCE - ORDER VERIFICATION</title>
+    <style>
+        :root {
+            --win-grey: #d4d0c8;
+            --win-blue: #000080;
+            --win-border-light: #ffffff;
+            --win-border-dark: #808080;
+        }
+
+        body {
+            background-color: #008080;
+            font-family: "MS Sans Serif", "Arial", sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        /* STABLE WINDOW STYLING - Expanded to fill more screen space */
+        .window-frame {
+            background-color: var(--win-grey);
+            border: 2px solid;
+            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
+            width: 98vw; /* Fills most of the horizontal width */
+            max-width: 1200px; /* Prevents it from getting excessively wide on ultra-wide monitors */
+            height: 95vh; /* Fills most of the vertical height */
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .title-bar {
+            background-color: var(--win-blue);
+            color: white;
+            padding: 4px 10px;
+            font-weight: bold;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .content-area {
+            display: flex;
+            padding: 10px;
+            gap: 15px;
+            flex: 1;
+            overflow: hidden; /* Contains the scrollable area */
+        }
+
+        /* LEFT SIDE: ITEM LIST */
+        #order-list-scroll {
+            flex: 2;
+            background: #fff;
+            border: 2px solid;
+            border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+            overflow-y: auto;
+        }
+
+        .order-item-row {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            font-size: 13px;
+        }
+
+        .order-item-row img {
+            width: 60px;
+            height: 60px;
+            border: 1px solid #808080;
+            margin-right: 15px;
+            background: #eee;
+            object-fit: cover;
+        }
+
+        .item-info { flex: 1; }
+        .item-price { font-weight: bold; font-family: monospace; font-size: 16px; }
+
+        /* RIGHT SIDE: SUMMARY & BUTTONS */
+        .action-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 320px;
+            max-width: 400px;
+        }
+
+        .summary-box {
+            background: #fff;
+            padding: 12px;
+            border: 2px solid var(--win-border-dark);
+            font-size: 12px;
+        }
+
+        .restaurant-header {
+            border-bottom: 1px solid #000;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            font-size: 11px;
+        }
+
+        .total-display {
+            background: #000;
+            color: #0f0;
+            padding: 20px;
+            font-family: "Courier New", monospace;
+            font-size: 40px; /* Larger text for the larger window */
+            text-align: right;
+            border: 2px solid var(--win-border-dark);
+        }
+
+        .nav-button {
+            background: var(--win-grey);
+            border: 2px solid;
+            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
+            padding: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .nav-button:active {
+            border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+        }
+    </style>
+</head>
+<body onload="loadOrder()">
+
+    <div class="window-frame">
+        <div class="title-bar">
+            <span>ORDER_REVIEW_FINAL.EXE</span>
+            <button onclick="goBack()" style="background:var(--win-grey); border:1px solid #000; font-size:10px; cursor:pointer;">X</button>
+        </div>
+
+        <div class="content-area">
+            <div id="order-list-scroll">
+            </div>
+
+            <div class="action-pane">
+                <div class="summary-box">
+                    <div class="restaurant-header">
+                        <strong>UNDEFEATED FIRE CORNER</strong><br>
+                        No. 5, Persiaran Batu Kawan, Penang Science Park, 14110 Simpang Ampat, Pulau Pinang.
+                    </div>
+                    <div id="summary-details"></div>
+                </div>
+
+                <div class="total-display">
+                    RM <span id="final-total">0.00</span>
+                </div>
+
+                <button class="nav-button" style="background:#008000; color:#fff;" onclick="window.location.href='cash.html'">
+                    💵 CASH PAYMENT
+                </button>
+                <button class="nav-button" style="background:#000080; color:#fff;" onclick="window.location.href='bank.html'">
+                    💳 CARD / BANK
+                </button>
+                <button class="nav-button" style="background:#800000; color:#fff;" onclick="goBack()">
+                    ⬅️ BACK TO MENU
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = 'menu.html';
+        }
+
+        function loadOrder() {
+            const cart = JSON.parse(localStorage.getItem("currentOrder")) || [];
+            const total = localStorage.getItem("totalAmount") || "0.00";
+            const serviceType = localStorage.getItem("serviceType") || "DINE IN";
+            const user = JSON.parse(localStorage.getItem("loggedInUser")) || {name: "Unknown"};
+
+            const orderContainer = document.getElementById('order-list-scroll');
+            const summaryDetails = document.getElementById('summary-details');
+            
+            let htmlItems = "";
+
+            cart.forEach(item => {
+                const priceValue = parseFloat(item.price) || 0;
+                // According to menu.html, the property is 'img'
+                const imgSrc = item.img || 'undpfm.png';
+                
+                htmlItems += `
+                <div class="order-item-row">
+                    <img src="${imgSrc}" onerror="this.src='undpfm.png'">
+                    <div class="item-info">
+                        <strong>${item.name}</strong><br>
+                        <small>Type: ${serviceType}</small>
+                    </div>
+                    <div class="item-price">RM ${priceValue.toFixed(2)}</div>
+                </div>`;
+            });
+
+            orderContainer.innerHTML = htmlItems || '<div style="padding:20px; text-align:center;">Empty Order</div>';
+
+            const now = new Date();
+            summaryDetails.innerHTML = `
+                <strong>CASHIER:</strong> ${user.name}<br>
+                <strong>DATE:</strong> ${now.toLocaleDateString()}<br>
+                <strong>TIME:</strong> ${now.toLocaleTimeString()}<br>
+                <strong>ITEMS:</strong> ${cart.length}
+            `;
+
+            document.getElementById('final-total').innerText = total;
+        }
+    </script>
+</body>
+</html>

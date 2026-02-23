@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>UND PERFORMANCE POS - SYSTEM TERMINAL</title>
+    <style>
+        body {
+            background-color: #ffffff;
+            font-family: "MS Sans Serif", "Arial", sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Top System Info */
+        .sys-meta-top {
+            position: absolute;
+            top: 10px;
+            width: 95%;
+            display: flex;
+            justify-content: space-between;
+            color: #a0a0a0;
+            font-size: 11px;
+            font-family: "Courier New", monospace;
+        }
+
+        /* Top Right DateTime Display */
+        #topRightClock {
+            text-align: right;
+        }
+
+        /* Bottom Version Info */
+        .sys-meta-bottom-right {
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+            color: #a0a0a0;
+            font-size: 10px;
+            text-align: right;
+            font-family: "Courier New", monospace;
+        }
+
+        #inputBlocker {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 999;
+            cursor: not-allowed;
+        }
+
+        .login-window {
+            width: 420px;
+            background-color: #d4d0c8;
+            border: 2px solid;
+            border-color: #ffffff #808080 #808080 #ffffff;
+            padding: 2px;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .title-bar {
+            background-color: #000080;
+            color: white;
+            padding: 3px 10px;
+            font-weight: bold;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .content-area { padding: 25px; }
+
+        .logo-header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #808080;
+            padding-bottom: 15px;
+        }
+
+        .logo-header img { max-width: 180px; }
+
+        .field-group { margin-bottom: 15px; display: flex; align-items: center; }
+        label { width: 120px; font-size: 12px; font-weight: bold; }
+
+        input {
+            flex: 1;
+            padding: 4px;
+            border: 2px solid;
+            border-color: #808080 #ffffff #ffffff #808080;
+            background-color: #ffffff;
+            font-family: "Courier New", monospace;
+            font-size: 14px;
+        }
+
+        .button-row {
+            margin-top: 20px;
+            border-top: 1px solid #808080;
+            padding-top: 15px;
+            text-align: center;
+        }
+
+        button {
+            padding: 4px 20px;
+            background-color: #d4d0c8;
+            border: 2px solid;
+            border-color: #ffffff #808080 #808080 #ffffff;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: "MS Sans Serif", Arial;
+        }
+
+        button:active { border-color: #808080 #ffffff #ffffff #808080; }
+
+        .system-footer {
+            margin-top: 15px;
+            width: 420px;
+            font-size: 10px;
+            color: #666;
+            text-align: center;
+            line-height: 1.4;
+            font-family: "Courier New", monospace;
+        }
+
+        /* Legacy Popups */
+        .dummy-popup {
+            position: absolute;
+            width: 300px;
+            background: #d4d0c8;
+            border: 2px solid #000;
+            z-index: 1000;
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.4);
+        }
+
+        .dummy-title {
+            background: #808080;
+            color: white;
+            font-size: 11px;
+            padding: 4px 8px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .dummy-content { padding: 20px; font-size: 13px; text-align: center; }
+
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #d4d0c8;
+            z-index: 2000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .progress-win {
+            width: 250px;
+            height: 25px;
+            border: 2px solid;
+            border-color: #808080 #ffffff #ffffff #808080;
+            background: #fff;
+            margin: 15px 0;
+        }
+
+        #progressBar { width: 0%; height: 100%; background: #000080; transition: width 0.1s linear; }
+
+        #modalOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .modal-box {
+            background-color: #d4d0c8;
+            border: 2px solid;
+            border-color: #ffffff #808080 #808080 #ffffff;
+            padding: 15px;
+            width: 300px;
+            box-shadow: 3px 3px 0px #000;
+            text-align: center;
+        }
+
+        .modal-header {
+            background: #000080;
+            color: white;
+            margin: -15px -15px 15px -15px;
+            padding: 4px 10px;
+            font-weight: bold;
+            font-size: 12px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body onload="startTime()">
+
+    <div id="inputBlocker"></div>
+
+    <div class="sys-meta-top">
+        <span>TERMINAL_POS_UNDF_01</span>
+        <span id="topRightClock"></span>
+    </div>
+
+    <div class="login-window">
+        <div class="title-bar">
+            <span>Terminal Login v2.4.017</span>
+            <span style="border:1px solid white; padding:0 3px; cursor:help;">?</span>
+        </div>
+
+        <div class="content-area">
+            <div class="logo-header">
+                <img src="undpfm.png" alt="UNDPFM" onerror="this.src='https://via.placeholder.com/180x60?text=UND+PERFORMANCE'">
+            </div>
+
+            <div class="field-group">
+                <label>USERNAME:</label>
+                <input type="text" id="username" onfocus="startGlitchSequence()" autocomplete="off">
+            </div>
+
+            <div class="field-group">
+                <label>PASSWORD:</label>
+                <input type="password" id="pin" maxlength="6" onfocus="startGlitchSequence()" onkeypress="return onlyNumbers(event)">
+            </div>
+
+            <div class="button-row">
+                <button onclick="handleLogin()">LOGIN</button>
+                <button onclick="location.reload()" style="margin-left:10px;">RESET</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="system-footer">
+        © 1992-2003 UND Performance<br>
+        ALL RIGHTS RESERVED. UNAUTHORIZED ACCESS IS PROHIBITED.<br>
+        LOCAL NODE: BAYAN_LEPAS_PNG // TRACE_ROUTE: ENABLED
+    </div>
+
+    <div class="sys-meta-bottom-right">
+        KERNEL_BUILD_v1.0.0.24 (LEGACY) | NODE: PNG-24<br>
+        SVR_STATUS: ATTACHED | DB_VERSION: 1994_BASE_FINAL
+    </div>
+
+    <div id="glitchContainer"></div>
+
+    <div id="loadingOverlay">
+        <div style="font-weight:bold; letter-spacing:1px;" id="loadMsg">SYSTEM INITIALIZING...</div>
+        <div class="progress-win"><div id="progressBar"></div></div>
+        <div id="percentText">0%</div>
+    </div>
+
+    <div id="modalOverlay">
+        <div class="modal-box">
+            <div class="modal-header">System Message</div>
+            <p id="modalMessage" style="font-size: 13px; color: #000; margin-bottom: 20px;"></p>
+            <button onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // LIVE CLOCK FUNCTION
+        function startTime() {
+            const today = new Date();
+            const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+            let d = days[today.getDay()];
+            let date = today.toLocaleDateString();
+            let h = today.getHours();
+            let m = today.getMinutes();
+            let s = today.getSeconds();
+            m = checkTime(m);
+            s = checkTime(s);
+            
+            // Setting the clock for the top right display
+            document.getElementById('topRightClock').innerHTML = d + " " + date + " " + h + ":" + m + ":" + s;
+            setTimeout(startTime, 1000);
+        }
+
+        function checkTime(i) {
+            if (i < 10) {i = "0" + i}; 
+            return i;
+        }
+
+        const employees = [
+            { name: "Aiman Rahman", code: "UNDF-PNG-24017", undid: "UNDid-7A3F-92D1", loginId: "aiman17", pin: "593841", shift: "08:00–16:00" },
+            { name: "Siti Nur Balqis", code: "UNDF-PNG-24023", undid: "UNDid-4C9B-18E7", loginId: "siti23", pin: "748205", shift: "08:00–16:30" },
+            { name: "Daniel Lee", code: "UNDF-PNG-23005", undid: "UNDid-9F2D-77A4", loginId: "daniel05", pin: "316904", shift: "S2 12:15–22:30" },
+            { name: "Nurul Huda", code: "UNDF-PNG-24031", undid: "UNDid-2E6A-54C8", loginId: "nurul31", pin: "902673", shift: "S3 16:30–10:30" },
+            { name: "Faris Hakim", code: "UNDF-PNG-22001", undid: "UNDid-1B8D-33F2", loginId: "faris01", pin: "185739", shift: "08:00-22:30" },
+            // Added Manager Account
+            { name: "Terminal Manager", code: "UNDF-MGMT-001", undid: "UNDid-MGMT-ROOT", loginId: "manager01", pin: "111111", shift: "ADMIN_ACCESS" }
+        ];
+
+        let sequenceStarted = false;
+
+        function onlyNumbers(e) {
+            return (e.charCode >= 48 && e.charCode <= 57);
+        }
+
+        function startGlitchSequence() {
+            if (sequenceStarted) return;
+            sequenceStarted = true;
+            setTimeout(() => spawnPopup("System Warning", "Detected latency in I/O Channel 4.", true), 2000);
+        }
+
+        function spawnPopup(title, msg, canClose) {
+            document.getElementById('inputBlocker').style.display = 'block';
+            const container = document.getElementById('glitchContainer');
+            const popup = document.createElement('div');
+            popup.className = 'dummy-popup';
+            popup.style.top = '40%';
+            popup.style.left = 'calc(50% - 150px)';
+
+            let btn = canClose ? `<span onclick="closePopup(this)" style="cursor:pointer; border:1px solid white; padding:0 2px;">X</span>` : '';
+
+            popup.innerHTML = `
+                <div class="dummy-title"><span>${title}</span>${btn}</div>
+                <div class="dummy-content">
+                    ${msg}<br><br>
+                    <button onclick="closePopup(this)">OK</button>
+                </div>
+            `;
+            container.appendChild(popup);
+        }
+
+        function closePopup(el) {
+            el.closest('.dummy-popup').remove();
+            document.getElementById('inputBlocker').style.display = 'none';
+            setTimeout(() => {
+                if(Math.random() > 0.5) {
+                    spawnPopup("Memory Error", "Stack overflow at 0x00FF2. Please wait for sync.", true);
+                } else {
+                    spawnPopup("Protocol Alert", "Legacy handshake required for node PNG-24.", true);
+                }
+            }, 5000);
+        }
+
+        function handleLogin() {
+            const u = document.getElementById('username').value.trim().toLowerCase();
+            const p = document.getElementById('pin').value;
+
+            const user = employees.find(e => e.loginId === u);
+
+            if (user && p === user.pin) {
+                localStorage.setItem("loggedInUser", JSON.stringify(user));
+                startLoading();
+            } else {
+                showModal("ACCESS DENIED: USER NOT FOUND OR INVALID 6-DIGIT PIN.");
+            }
+        }
+
+        function startLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            const bar = document.getElementById('progressBar');
+            const txt = document.getElementById('percentText');
+            const msg = document.getElementById('loadMsg');
+            overlay.style.display = 'flex';
+
+            let progress = 0;
+            const statusMsgs = ["MOUNTING DRIVE...", "FETCHING DATABASE...", "DECRYPTING RSA...", "READY."];
+
+            const interval = setInterval(() => {
+                progress += 1;
+                bar.style.width = progress + "%";
+                txt.innerText = progress + "%";
+
+                if (progress == 25) msg.innerText = statusMsgs[1];
+                if (progress == 60) msg.innerText = statusMsgs[2];
+                if (progress == 90) msg.innerText = statusMsgs[3];
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    window.location.href = "menu.html";
+                }
+            }, 150);
+        }
+
+        function showModal(m) {
+            document.getElementById('modalMessage').innerText = m;
+            document.getElementById('modalOverlay').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

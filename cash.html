@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>UND PERFORMANCE - CASHIER TERMINAL</title>
+    <style>
+        :root {
+            --win-grey: #d4d0c8;
+            --win-blue: #000080;
+            --win-border-light: #ffffff;
+            --win-border-dark: #808080;
+        }
+
+        body {
+            background-color: #008080;
+            font-family: "MS Sans Serif", "Arial", sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .window-frame {
+            background-color: var(--win-grey);
+            border: 2px solid;
+            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
+            width: 1000px;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .title-bar {
+            background-color: var(--win-blue);
+            color: white;
+            padding: 4px 10px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 10px;
+            padding: 10px;
+            flex: 1;
+            height: calc(100% - 30px);
+        }
+
+        .section-box {
+            background: var(--win-grey);
+            border: 2px solid;
+            border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        #order-summary {
+            background: #fff;
+            flex: 1;
+            overflow-y: auto;
+            font-size: 12px;
+            border: 1px solid #808080;
+        }
+
+        .order-row { padding: 5px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+
+        .middle-pane { text-align: center; }
+        .total-box {
+            background: #000;
+            color: #0f0;
+            font-family: monospace;
+            font-size: 36px;
+            padding: 5px;
+            margin-bottom: 10px;
+            border: 2px solid var(--win-border-dark);
+        }
+
+        .input-display {
+            background: #fff;
+            border: 2px solid var(--win-border-dark);
+            font-size: 24px;
+            padding: 10px;
+            margin-bottom: 25px; 
+            text-align: right;
+            height: 35px;
+        }
+
+        .quick-cash-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            flex: 1;
+        }
+
+        .win-btn {
+            background: var(--win-grey);
+            border: 2px solid;
+            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
+            padding: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .win-btn:active { border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark); }
+        .btn-green { background: #008000; color: white; }
+        .btn-red { background: #800000; color: white; }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-box {
+            background: var(--win-grey);
+            border: 2px solid #fff;
+            padding: 2px;
+            box-shadow: 2px 2px 10px #000;
+        }
+
+        .modal-header { background: var(--win-blue); color: white; padding: 4px 8px; font-weight: bold; display: flex; justify-content: space-between; }
+        .modal-body { padding: 20px; text-align: center; }
+
+        #invoice-window .modal-box { width: 500px; }
+        .invoice-scroll-container {
+            background: #f8f9fa;
+            border: 1px solid var(--win-border-dark);
+            max-height: 450px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .modern-invoice {
+            background: #fff;
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .invoice-header { border-bottom: 2px solid #008080; padding-bottom: 10px; margin-bottom: 20px; }
+        .invoice-header h2 { margin: 0; color: #008080; }
+        .invoice-details-stacked { margin-bottom: 20px; font-size: 12px; border-left: 3px solid #008080; padding-left: 10px; }
+        .item-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .item-table th { border-bottom: 1px solid #ddd; padding: 8px; text-align: left; background: #f2f2f2; }
+        .item-table td { padding: 8px; border-bottom: 1px solid #eee; }
+        .total-section { float: right; width: 200px; }
+        .total-row { display: flex; justify-content: space-between; padding: 5px 0; }
+        .grand-total { font-weight: bold; border-top: 2px solid #008080; margin-top: 10px; padding-top: 10px; font-size: 18px; color: #008080; }
+        .clear { clear: both; }
+
+        @media print {
+            body * { visibility: hidden; }
+            .modern-invoice, .modern-invoice * { visibility: visible; }
+            .modern-invoice { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; }
+        }
+    </style>
+</head>
+<body onload="initCashier()">
+
+    <div class="window-frame">
+        <div class="title-bar">
+            <span>CASH_PAYMENT_MODULE.SYS</span>
+            <button onclick="window.location.href='payment.html'" style="cursor:pointer;">X</button>
+        </div>
+
+        <div class="main-layout">
+            <div class="section-box">
+                <div style="font-weight:bold; margin-bottom:5px;">ORDER DETAILS:</div>
+                <div id="order-summary"></div>
+                <button class="win-btn" style="margin-top:10px; font-size:12px;" onclick="window.location.href='payment.html'">BACK</button>
+            </div>
+
+            <div class="section-box middle-pane">
+                <div style="font-weight:bold;">TOTAL DUE</div>
+                <div class="total-box">RM <span id="total-due">0.00</span></div>
+                
+                <div style="font-weight:bold;">CASH RECEIVED</div>
+                <div class="input-display" id="cash-input">0</div>
+
+                <div class="quick-cash-grid">
+                    <button class="win-btn" onclick="quickCash(10)">RM 10</button>
+                    <button class="win-btn" onclick="quickCash(20)">RM 20</button>
+                    <button class="win-btn" onclick="quickCash(50)">RM 50</button>
+                    <button class="win-btn" onclick="quickCash(100)">RM 100</button>
+                </div>
+            </div>
+
+            <div class="section-box">
+                <div class="keypad">
+                    <button class="win-btn" onclick="press(7)">7</button>
+                    <button class="win-btn" onclick="press(8)">8</button>
+                    <button class="win-btn" onclick="press(9)">9</button>
+                    <button class="win-btn" onclick="press(4)">4</button>
+                    <button class="win-btn" onclick="press(5)">5</button>
+                    <button class="win-btn" onclick="press(6)">6</button>
+                    <button class="win-btn" onclick="press(1)">1</button>
+                    <button class="win-btn" onclick="press(2)">2</button>
+                    <button class="win-btn" onclick="press(3)">3</button>
+                    <button class="win-btn" onclick="press(0)">0</button>
+                    <button class="win-btn" onclick="press('.')">.</button>
+                    <button class="win-btn btn-red" onclick="clearInput()">DEL</button>
+                </div>
+                <button class="win-btn btn-green" style="margin-top:10px; width:100%; height:80px;" onclick="startProcessing()">OKAY (PROCEED)</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="error-dialog" class="modal-overlay">
+        <div class="modal-box" style="width:300px;">
+            <div class="modal-header"><span>SYSTEM ERROR</span></div>
+            <div class="modal-body">
+                <p id="error-msg">Insufficient Cash Amount!</p>
+                <button class="win-btn" onclick="closeModal('error-dialog')" style="width:100px">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-dialog" class="modal-overlay">
+        <div class="modal-box" style="width:250px;">
+            <div class="modal-header"><span>SYNCING DATABASE...</span></div>
+            <div class="modal-body">
+                Processing Transaction...
+            </div>
+        </div>
+    </div>
+
+    <div id="balance-popup" class="modal-overlay">
+        <div class="modal-box" style="width:350px;">
+            <div class="modal-header"><span>TRANSACTION SUCCESS</span></div>
+            <div class="modal-body">
+                <div style="font-weight:bold; font-size:14px; margin-bottom:10px;">PLEASE RETURN CHANGE:</div>
+                <div style="background:#000; color:#ffff00; font-family:monospace; font-size:40px; padding:10px; border:2px solid #808080; margin-bottom:20px;">
+                    RM <span id="pop-balance-amount">0.00</span>
+                </div>
+                <button class="win-btn btn-green" onclick="closeBalanceAndShowInvoice()" style="width:100%">OK (VIEW INVOICE)</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="invoice-window" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span>E-INVOICE_MANAGER.EXE</span>
+                <span onclick="finalizeOrder()" style="cursor:pointer;">[X]</span>
+            </div>
+            <div class="modal-body" style="padding:10px;">
+                <div class="invoice-scroll-container">
+                    <div class="modern-invoice" id="invoice-content"></div>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button class="win-btn" style="flex:1" onclick="window.print()">PRINT INVOICE</button>
+                    <button class="win-btn btn-green" style="flex:1" onclick="finalizeOrder()">OK / NEW ORDER</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentInput = "";
+        let totalDue = 0;
+
+        function initCashier() {
+            const cart = JSON.parse(localStorage.getItem("currentOrder")) || [];
+            totalDue = parseFloat(localStorage.getItem("totalAmount")) || 0;
+            document.getElementById('total-due').innerText = totalDue.toFixed(2);
+
+            const summary = document.getElementById('order-summary');
+            summary.innerHTML = cart.map(item => `
+                <div class="order-row">
+                    <span>${item.name}</span>
+                    <span>RM ${parseFloat(item.price).toFixed(2)}</span>
+                </div>
+            `).join('');
+        }
+
+        function press(num) {
+            currentInput += num;
+            document.getElementById('cash-input').innerText = currentInput;
+        }
+
+        function clearInput() {
+            currentInput = "";
+            document.getElementById('cash-input').innerText = "0";
+        }
+
+        function quickCash(amount) {
+            currentInput = amount.toString();
+            document.getElementById('cash-input').innerText = currentInput;
+            startProcessing();
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function startProcessing() {
+            let cashReceived = parseFloat(currentInput);
+            if (isNaN(cashReceived) || cashReceived < totalDue) {
+                document.getElementById('error-dialog').style.display = 'flex';
+                return;
+            }
+
+            document.getElementById('loading-dialog').style.display = 'flex';
+            
+            setTimeout(() => {
+                closeModal('loading-dialog');
+                let change = cashReceived - totalDue;
+                document.getElementById('pop-balance-amount').innerText = change.toFixed(2);
+                document.getElementById('balance-popup').style.display = 'flex';
+            }, 1500);
+        }
+
+        function closeBalanceAndShowInvoice() {
+            closeModal('balance-popup');
+            showInvoice();
+        }
+
+        function showInvoice() {
+            const now = new Date();
+            const cashReceived = parseFloat(currentInput);
+            const balance = cashReceived - totalDue;
+            const cart = JSON.parse(localStorage.getItem("currentOrder")) || [];
+            const user = JSON.parse(localStorage.getItem("loggedInUser")) || {name: "Cashier"};
+
+            let rows = cart.map(item => `
+                <tr>
+                    <td>${item.name}</td>
+                    <td style="text-align:right">RM ${parseFloat(item.price).toFixed(2)}</td>
+                </tr>
+            `).join('');
+
+            const invoiceHtml = `
+                <div class="invoice-header">
+                    <h2>OFFICIAL E-INVOICE</h2>
+                    <strong>UNDEFEATED FIRE CORNER</strong>
+                </div>
+                <div class="invoice-details-stacked">
+                    <strong>Merchant Address:</strong><br>
+                    No. 5, Persiaran Batu Kawan, Penang Science Park,<br>
+                    14110 Simpang Ampat, Pulau Pinang.<br><br>
+                    <strong>Invoice Information:</strong><br>
+                    Date: ${now.toLocaleDateString()}<br>
+                    Time: ${now.toLocaleTimeString()}<br>
+                    Cashier: ${user.name.toUpperCase()}<br>
+                    Ref ID: #UND-${Math.floor(100000 + Math.random() * 900000)}
+                </div>
+                <table class="item-table">
+                    <thead>
+                        <tr>
+                            <th>Item Description</th>
+                            <th style="text-align:right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+                <div class="total-section">
+                    <div class="total-row"><span>Subtotal:</span><span>RM ${totalDue.toFixed(2)}</span></div>
+                    <div class="total-row"><span>Cash Tendered:</span><span>RM ${cashReceived.toFixed(2)}</span></div>
+                    <div class="total-row grand-total"><span>Balance Change:</span><span>RM ${balance.toFixed(2)}</span></div>
+                </div>
+                <div class="clear"></div>
+                <div style="margin-top:40px; border-top: 1px solid #eee; padding-top: 10px; text-align:center;">
+                    <p style="font-size:11px; color:#666;">Thank you for your business!<br>Please visit us again at Undefeated Fire Corner.</p>
+                </div>
+            `;
+            document.getElementById('invoice-content').innerHTML = invoiceHtml;
+            document.getElementById('invoice-window').style.display = 'flex';
+        }
+
+        function finalizeOrder() {
+            const history = JSON.parse(localStorage.getItem("pos_history")) || [];
+            const now = new Date();
+            const newRecord = {
+                time: now.toLocaleString(),
+                type: localStorage.getItem("serviceType") || "DINE IN",
+                amount: totalDue.toFixed(2),
+                items: JSON.parse(localStorage.getItem("currentOrder")) || []
+            };
+            history.push(newRecord);
+            localStorage.setItem("pos_history", JSON.stringify(history));
+            localStorage.removeItem("currentOrder");
+            localStorage.setItem("totalAmount", "0.00");
+            window.location.href = 'menu.html';
+        }
+    </script>
+</body>
+</html>

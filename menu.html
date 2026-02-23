@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>UND PERFORMANCE - MAIN TERMINAL</title>
+    <style>
+        :root {
+            --win-grey: #d4d0c8;
+            --win-blue: #000080;
+            --win-border-light: #ffffff;
+            --win-border-dark: #808080;
+        }
+
+        body {
+            background-color: #008080;
+            font-family: "MS Sans Serif", "Arial", sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #serviceOverlay, #customModal, #drinkModal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #drinkModal, #serviceOverlay { display: none; }
+
+        #sidebar {
+            width: 220px;
+            background-color: var(--win-grey);
+            border-right: 2px solid var(--win-border-dark);
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            box-shadow: inset -1px -1px 0 #000;
+            flex-shrink: 0;
+        }
+
+        .profile-card {
+            background: #fff;
+            border: 2px solid;
+            border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 11px;
+        }
+
+        .profile-card h3 {
+            margin: 0 0 5px 0;
+            font-size: 13px;
+            color: var(--win-blue);
+            border-bottom: 1px solid var(--win-border-dark);
+        }
+
+        .nav-button {
+            background: var(--win-grey);
+            border: 2px solid;
+            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
+            padding: 8px;
+            margin-bottom: 5px;
+            text-align: left;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+            display: block;
+            width: 100%;
+        }
+
+        .nav-button:active, .sub-filter-btn.active {
+            border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+            background: #e6e6e6;
+        }
+
+        #main-terminal {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            min-width: 0;
+        }
+
+        .window-frame {
+            background-color: var(--win-grey);
+            border: 2px solid;
+            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .title-bar {
+            background-color: var(--win-blue);
+            color: white;
+            padding: 4px 10px;
+            font-weight: bold;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .content-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .menu-side {
+            flex: 1;
+            overflow-y: scroll;
+            background: #808080;
+            padding: 15px;
+            scroll-behavior: smooth;
+        }
+
+        .category-header {
+            background: #404040;
+            color: #fff;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 10px 0;
+            border: 1px solid #000;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .food-item {
+            background: var(--win-grey);
+            border: 2px solid;
+            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .food-item.unavailable {
+            filter: grayscale(1);
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .food-item img {
+            width: 100%;
+            height: 80px;
+            object-fit: contain;
+            background: #fff;
+            border: 1px solid #000;
+            margin-bottom: 5px;
+        }
+
+        .win-table {
+            width: 100%;
+            background: #fff;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .win-table th { background: var(--win-blue); color: #fff; padding: 5px; text-align: left; }
+        .win-table td { border: 1px solid #808080; padding: 5px; }
+        
+        #order-summary {
+            width: 300px;
+            background: var(--win-grey);
+            border-left: 2px solid var(--win-border-dark);
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            flex-shrink: 0;
+        }
+
+        #cart-items {
+            flex: 1;
+            overflow-y: auto;
+            background: #fff;
+            border: 2px solid;
+            border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+            font-size: 11px;
+            margin-bottom: 10px;
+        }
+
+        .cart-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px;
+            border-bottom: 1px dotted #ccc;
+            align-items: center;
+        }
+
+        .total-box {
+            background: #000;
+            color: #0f0;
+            padding: 10px;
+            font-family: "Courier New", monospace;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: right;
+            border: 2px solid var(--win-border-dark);
+        }
+
+        .modal-box {
+            background: var(--win-grey);
+            border: 2px solid;
+            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
+            width: 300px;
+            padding: 2px;
+        }
+
+        .status-bar {
+            background: var(--win-grey);
+            border-top: 2px solid var(--win-border-dark);
+            padding: 3px 10px;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        /* Restricted Appearance */
+        .restricted-locked {
+            filter: grayscale(1);
+            /* pointer-events: none; REMOVED to allow scroll */
+        }
+        .logout-unlocked {
+            pointer-events: auto !important;
+            filter: none !important;
+        }
+
+        .sub-filter-btn {
+            background: var(--win-grey);
+            border: 2px solid;
+            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
+            padding: 2px 8px;
+            margin-right: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .search-container {
+            position: relative;
+            margin-left: 10px;
+            display: inline-block;
+        }
+        #searchInput {
+            border: 2px solid;
+            border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+            padding: 3px;
+            width: 200px;
+            font-family: "MS Sans Serif";
+        }
+        #searchDropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 250px;
+            background: #fff;
+            border: 1px solid #000;
+            z-index: 999;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+        }
+        .search-item {
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        .search-item:hover { background: #000080; color: #fff; }
+        .search-item img { width: 30px; height: 30px; margin-right: 10px; border: 1px solid #ccc; background: #fff; }
+
+        .best-seller-tag {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red; color: white;
+            font-size: 9px; padding: 2px 4px;
+            border: 1px solid black; z-index: 5;
+        }
+    </style>
+</head>
+<body onload="initMenu()">
+
+    <div id="customModal" style="display:none;">
+        <div class="modal-box" style="width: 450px;">
+            <div class="title-bar"><span id="modalTitle">SYSTEM_MESSAGE.EXE</span></div>
+            <div style="padding: 20px; background: var(--win-grey); text-align: center;">
+                <div id="modalContent">
+                    <p id="modalText" style="font-size: 12px; margin-bottom: 20px; white-space: pre-line;">Message content here.</p>
+                </div>
+                <div id="modalButtons" style="display: flex; gap: 10px; justify-content: center;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="serviceOverlay">
+        <div class="modal-box" style="width: 400px;">
+            <div class="title-bar"><span>SYSTEM_INITIALIZATION.EXE</span></div>
+            <div style="padding: 20px; text-align: center;">
+                <h2 style="margin-top: 0;">SELECT SERVICE TYPE</h2>
+                <div style="display: flex; gap: 15px;">
+                    <button class="nav-button" style="flex: 1; height: 100px; text-align: center; font-size: 16px;" onclick="selectService('DINE IN')">🍽️<br>DINE IN</button>
+                    <button class="nav-button" style="flex: 1; height: 100px; text-align: center; font-size: 16px;" onclick="selectService('TAKE AWAY')">🥡<br>TAKE AWAY</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="sidebar">
+        <div class="profile-card">
+            <h3>EMPLOYEE PROFILE</h3>
+            <div id="prof-name"><b>NAME:</b> ...</div>
+            <div id="prof-id"><b>ID:</b> ...</div>
+            <div id="prof-code"><b>CODE:</b> ...</div>
+            <div id="prof-store"><b>STORE:</b> PNG-MAIN-HUB</div>
+            <div id="prof-shift"><b>SHIFT:</b> ...</div>
+            <div id="service-type" style="margin-top: 5px; color: #d00; font-weight: bold;">TYPE: NOT SET</div>
+        </div>
+        <div id="nav-container">
+            <button class="nav-button" onclick="switchView('MENU')">🛒 NEW ORDER</button>
+            <button class="nav-button" onclick="switchView('TRANSACTIONS')">📂 TRANSACTIONS</button>
+            <button class="nav-button" onclick="switchView('INVENTORY')">📊 INVENTORY</button>
+            <button class="nav-button" onclick="switchView('ITEMS')">✏️ EDIT ITEMS</button>
+            <button class="nav-button" onclick="switchView('SETTINGS')">⚙️ SETTINGS</button>
+        </div>
+        <button class="nav-button logout-unlocked" style="margin-top: auto; background: #c00; color: white;" onclick="triggerLogout()">🔓 LOGOUT</button>
+    </div>
+
+    <div id="main-terminal">
+        <div id="main-frame-wrapper" class="window-frame">
+            <div class="title-bar">
+                <span id="win-title">POS_MENU_EXPLORER.EXE</span>
+                <span id="top-clock">00:00:00</span>
+            </div>
+            
+            <div id="toolbar" style="padding: 10px; background: var(--win-grey); border-bottom: 1px solid #808080; font-size: 12px;">
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <b>Category:</b> 
+                    <select id="categorySelect" onchange="renderMenu()" style="margin-left:5px;">
+                        <option value="ALL">ALL PRODUCTS</option>
+                        <option value="FOOD">FOOD</option>
+                        <option value="DRINKS">DRINKS</option>
+                        <option value="OTHER">OTHER</option>
+                    </select>
+
+                    <div class="search-container">
+                        <b>Search:</b>
+                        <input type="text" id="searchInput" placeholder="Find item..." oninput="handleSearch()">
+                        <div id="searchDropdown"></div>
+                    </div>
+                </div>
+                <div id="subFilters">
+                    <button class="sub-filter-btn active" onclick="setSubFilter('ALL', this)">RESET</button>
+                    <button class="sub-filter-btn" onclick="setSubFilter('Nasi', this)">NASI</button>
+                    <button class="sub-filter-btn" onclick="setSubFilter('Mee', this)">MEE/MAGGI</button>
+                    <button class="sub-filter-btn" onclick="setSubFilter('Ayam', this)">AYAM</button>
+                    <button class="sub-filter-btn" onclick="setSubFilter('Daging', this)">DAGING</button>
+                    <button class="sub-filter-btn" onclick="setSubFilter('Sotong', this)">SOTONG</button>
+                    <button class="sub-filter-btn" onclick="setSubFilter('Udang', this)">UDANG</button>
+                </div>
+            </div>
+
+            <div class="content-body">
+                <div class="menu-side" id="menuContainer"></div>
+
+                <div id="order-summary">
+                    <div class="profile-card" style="margin-bottom:10px; text-align:center; font-weight:bold;">CURRENT RECEIPT</div>
+                    <div id="cart-items"></div>
+                    <div class="total-box">
+                        RM <span id="cart-total">0.00</span>
+                    </div>
+                    <button class="nav-button" id="pay-btn" style="background:#008000; color:white; text-align:center; margin-top:10px;" onclick="proceedToPayment()">PROCEED TO PAYMENT >> </button>
+                </div>
+            </div>
+
+            <div class="status-bar">
+                <span id="status-node">NODE: PNG-24 ACTIVE</span>
+                <span id="status-user">USER: Unknown</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="drinkModal">
+        <div class="modal-box">
+            <div class="title-bar"><span>SELECT TEMPERATURE</span></div>
+            <div style="text-align:center; padding:10px;">
+                <img id="drinkModalImg" src="undpfm.png" style="width:50px; height:50px; background:#fff; border:1px solid #000;">
+                <div id="modalItemName" style="font-weight:bold; margin-top:5px;">ITEM</div>
+            </div>
+            <div class="option-container" style="display:flex; gap:10px; padding:15px;">
+                <div class="temp-option" style="flex:1; background:var(--win-grey); border:2px solid; border-color:var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light); padding:10px; cursor:pointer;" onclick="confirmDrink('HOT')">♨️ HOT<br>(Base Price)</div>
+                <div class="temp-option" style="flex:1; background:var(--win-grey); border:2px solid; border-color:var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light); padding:10px; cursor:pointer;" onclick="confirmDrink('COLD')">❄️ COLD<br>(+RM 0.50)</div>
+            </div>
+            <div style="text-align:center; padding-bottom:10px;">
+                <button class="nav-button" style="width:80%; margin: 0 auto; text-align: center;" onclick="closeDrinkModal()">CANCEL</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const defaultMenuData = [
+            { cat: "FOOD", name: "Nasi Putih", img: "nasi.png", price: 1.50, stock: 50, hidden: false },
+            { cat: "FOOD", name: "Nasi Goreng Biasa", img: "nasi_goreng_biasa.png", price: 6.00, stock: 30, hidden: false },
+            { cat: "FOOD", name: "Nasi Goreng Kampung", img: "nasi_goreng_kampung.png", price: 9.00, stock: 25, hidden: false },
+            { cat: "FOOD", name: "Nasi Goreng Ayam", img: "nasi_goreng_ayam.png", price: 8.50, stock: 20, hidden: false },
+            { cat: "FOOD", name: "Nasi Goreng Cina", img: "nasi_goreng_cina.png", price: 9.00, stock: 20, hidden: false },
+            { cat: "FOOD", name: "Nasi Goreng Tomyam", img: "nasi_goreng_tomyam.png", price: 10.00, bestSeller: true, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Nasi Goreng USA", img: "nasi_goreng_usa.png", price: 10.00, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Nasi Goreng Pattaya", img: "nasi_goreng_pattaya.png", price: 10.00, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Nasi Goreng Daging", img: "nasi_goreng_daging.png", price: 10.00, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Nasi Goreng Ayam Kunyit", img: "nasi_goreng_ayam_kunyit.png", price: 9.00, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Nasi Goreng Ladna", img: "nasi_goreng_ladna.png", price: 10.00, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Maggi Goreng", img: "maggi_goreng.png", price: 5.00, stock: 40, hidden: false },
+            { cat: "FOOD", name: "Mee Goreng", img: "mee_goreng.png", price: 6.50, stock: 30, hidden: false },
+            { cat: "FOOD", name: "Tomyam Ayam", img: "tomyam_ayam.png", price: 10.00, stock: 20, hidden: false },
+            { cat: "FOOD", name: "Tomyam Daging", img: "tomyam_daging.png", price: 11.00, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Tomyam Seafood", img: "tomyam_seafood.png", price: 15.00, bestSeller: true, stock: 10, hidden: false },
+            { cat: "FOOD", name: "Tomyam Campur", img: "tomyam_campur.png", price: 12.00, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Tomyam Goong", img: "tomyam_goong.png", price: 18.00, stock: 10, hidden: false },
+            { cat: "FOOD", name: "Tomyam Poktek", img: "tomyam_poktek.png", price: 15.00, stock: 10, hidden: false },
+            { cat: "FOOD", name: "Tomyam Putih", img: "tomyam_putih.png", price: 12.00, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Sup Gearbox", img: "sup_gearbox.png", price: 10.00, stock: 5, hidden: false },
+            { cat: "FOOD", name: "Sup Tulang", img: "sup_tulang.png", price: 9.00, stock: 10, hidden: false },
+            { cat: "FOOD", name: "Sup Perut", img: "sup_perut.png", price: 9.00, stock: 10, hidden: false },
+            { cat: "FOOD", name: "Ayam Paprik", img: "ayam_paprik.png", price: 9.50, bestSeller: true, stock: 20, hidden: false },
+            { cat: "FOOD", name: "Ayam 3 Rasa", img: "ayam_3_rasa.png", price: 9.50, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Ayam Masak Merah", img: "ayam_masak_merah.png", price: 9.50, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Ayam Goreng Kunyit", img: "ayam_goreng_kunyit.png", price: 9.50, stock: 20, hidden: false },
+            { cat: "FOOD", name: "Ayam Masak Halia", img: "ayam_masak_halia.png", price: 9.50, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Ayam Masak Kicap", img: "ayam_masak_kicap.png", price: 9.50, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Daging Masak Merah", img: "daging_masak_merah.png", price: 11.00, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Daging Paprik", img: "daging_paprik.png", price: 11.00, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Daging Goreng Kunyit", img: "daging_goreng_kunyit.png", price: 11.00, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Daging Masak Black Pepper", img: "daging_black_pepper.png", price: 12.00, stock: 10, hidden: false },
+            { cat: "FOOD", name: "Daging Masak Pedas", img: "daging_masak_pedas.png", price: 12.00, stock: 10, hidden: false },
+            { cat: "FOOD", name: "Perut Goreng Kunyit", img: "perut_goreng_kunyit.png", price: 10.00, stock: 10, hidden: false },
+            { cat: "FOOD", name: "Perut Masak Hitam", img: "perut_masak_hitam.png", price: 10.00, stock: 10, hidden: false },
+            { cat: "FOOD", name: "Udang 3 Rasa", img: "udang_3_rasa.png", price: 14.00, stock: 10, hidden: false },
+            { cat: "FOOD", name: "Udang Butter", img: "udang_butter.png", price: 14.00, bestSeller: true, stock: 10, hidden: false },
+            { cat: "FOOD", name: "Udang Goreng Kunyit", img: "udang_goreng_kunyit.png", price: 14.00, stock: 10, hidden: false },
+            { cat: "FOOD", name: "Sotong Goreng Kunyit", img: "sotong_goreng_kunyit.png", price: 12.00, stock: 10, hidden: false },
+            { cat: "FOOD", name: "Sotong Tepung", img: "sotong_tepung.png", price: 12.00, stock: 10, hidden: false },
+            { cat: "FOOD", name: "Sotong Sambal", img: "sotong_sambal.png", price: 12.00, stock: 10, hidden: false },
+            { cat: "FOOD", name: "Sotong Masak Merah", img: "sotong_masak_pedas.png", price: 12.00, stock: 10, hidden: false },
+            { cat: "FOOD", name: "Ikan 3 Rasa", img: "ikan_3_rasa.png", price: 20.00, stock: 5, hidden: false },
+            { cat: "FOOD", name: "Sayur Campur", img: "sayur_campur.png", price: 6.00, stock: 20, hidden: false },
+            { cat: "FOOD", name: "Sayur Kailan", img: "sayur_kailan.png", price: 7.00, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Kobis Goreng", img: "kobis_goreng.png", price: 6.00, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Telur Dadar", img: "telur_dadar.png", price: 3.00, stock: 50, hidden: false },
+            { cat: "FOOD", name: "Telur Mata", img: "telur_mata.png", price: 2.00, stock: 50, hidden: false },
+            { cat: "FOOD", name: "Telur Bungkus", img: "telur_bungkus.png", price: 9.50, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Telur Bistik", img: "telur_bistik.png", price: 9.50, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Bihun Tomyam", img: "bihun_tomyam.png", price: 9.00, stock: 20, hidden: false },
+            { cat: "FOOD", name: "Kuey Teow Tomyam", img: "kuey_teow_tomyam.png", price: 9.00, stock: 20, hidden: false },
+            { cat: "FOOD", name: "Maggi Tomyam", img: "maggi_tomyam.png", price: 9.00, stock: 20, hidden: false },
+            { cat: "FOOD", name: "Wat Tan Hor", img: "wat_tan_hor.png", price: 11.00, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Char Kuey Teow", img: "char_kuey_teow.png", price: 11.00, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Nasi Putih Lauk Set", img: "nasi_lauk_set.png", price: 12.00, stock: 20, hidden: false },
+            { cat: "FOOD", name: "Chicken Chop", img: "chicken_chop.png", price: 15.00, stock: 10, hidden: false },
+            { cat: "FOOD", name: "Lamb Chop", img: "lamb_chop.png", price: 22.00, stock: 10, hidden: false },
+            { cat: "FOOD", name: "Spaghetti Aglio Olio", img: "spaghetti_aglio.png", price: 9.00, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Spaghetti Carbonara", img: "spaghetti_carbonara.png", price: 13.00, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Spaghetti Bolognese", img: "spaghetti_bolognese.png", price: 12.00, stock: 15, hidden: false },
+            { cat: "FOOD", name: "Roti Canai", img: "roti_canai.png", price: 1.50, stock: 100, hidden: false },
+            { cat: "FOOD", name: "Roti Telur", img: "roti_telur.png", price: 3.00, stock: 50, hidden: false },
+            { cat: "FOOD", name: "Cheesy Wedges", img: "cheesy_wedges.png", price: 8.00, stock: 20, hidden: false },
+            { cat: "FOOD", name: "Ayam Goreng Berempah", img: "ayam_berempah.png", price: 4.00, stock: 40, hidden: false },
+            { cat: "FOOD", name: "Keropok Lekor", img: "lekor.png", price: 7.00, stock: 40, hidden: false },
+            { cat: "FOOD", name: "Otak-otak", img: "otak_otak.png", price: 1.00, stock: 100, hidden: false },
+            // DRINKS
+            { cat: "DRINKS", name: "Teh", img: "teh.png", price: 2.50, hasTemp: true, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Kopi", img: "kopi.png", price: 2.50, hasTemp: true, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Milo", img: "milo.png", price: 3.50, hasTemp: true, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Sirap", img: "sirap.png", price: 2.00, hasTemp: true, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Sirap Limau", img: "sirap_limau.png", price: 2.00, hasTemp: true, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Teh O", img: "teh_o.png", price: 2.00, hasTemp: true, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Kopi O", img: "kopi_o.png", price: 2.00, hasTemp: true, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Nescafe", img: "nescafe.png", price: 3.50, hasTemp: true, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Neslo", img: "neslo.png", price: 4.00, hasTemp: true, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Barli", img: "barli.png", price: 3.00, hasTemp: true, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Teh Tarik", img: "teh_tarik.png", price: 2.00, hasTemp: false, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Matcha", img: "matcha.png", price: 6.00, hasTemp: false, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Ais Kepal Milo", img: "ais_kepal_milo.png", price: 5.00, hasTemp: false, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "ABC", img: "abc.png", price: 6.00, hasTemp: false, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "BingXue", img: "bingxue.png", price: 5.00, hasTemp: false, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Air Mineral", img: "mineral.png", price: 1.50, hasTemp: false, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Jus Tembikai", img: "jus_tembikai.png", price: 5.00, hasTemp: false, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Sky Juice", img: "sky_juice.png", price: 0.50, hasTemp: false, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Extra Joss Anggur", img: "anggur.png", price: 3.00, hasTemp: false, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Extra Joss Mangga", img: "mangga.png", price: 3.00, hasTemp: false, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Extra Joss Oren", img: "oren.png", price: 3.00, hasTemp: false, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Extra Joss Original", img: "original.png", price: 3.00, hasTemp: false, stock: 100, hidden: false },
+            // OTHER (Placeholder, items moved to food)
+            { cat: "OTHER", name: "Plastic Bag", img: "undpfm.png", price: 0.20, stock: 1000, hidden: false }
+        ];
+
+        let menuData = JSON.parse(localStorage.getItem("pos_inventory_db")) || defaultMenuData;
+        let cart = [];
+        let pendingItem = null;
+        let selectedServiceStr = "";
+        let transactionHistory = JSON.parse(localStorage.getItem("pos_history")) || [];
+        let activeSubFilter = "ALL";
+        let isSystemRestricted = false;
+        let userProfile = null;
+
+        function saveDatabase() {
+            localStorage.setItem("pos_inventory_db", JSON.stringify(menuData));
+        }
+
+        function initMenu() {
+            userProfile = JSON.parse(localStorage.getItem("loggedInUser"));
+            if (!userProfile) { window.location.href = "index.html"; return; }
+            
+            document.getElementById('prof-name').innerHTML = `<b>NAME:</b> ${userProfile.name}`;
+            document.getElementById('prof-id').innerHTML = `<b>ID:</b> ${userProfile.undid}`;
+            document.getElementById('prof-code').innerHTML = `<b>CODE:</b> ${userProfile.code}`;
+            document.getElementById('prof-shift').innerHTML = `<b>SHIFT:</b> ${userProfile.shift}`;
+            document.getElementById('status-user').innerText = `USER: ${userProfile.loginId.toUpperCase()}`;
+
+            // Priority Check: Shift hours vs Manager bypass
+            if (userProfile.loginId !== "manager01") {
+                checkShiftLock(userProfile.shift);
+            } else {
+                document.getElementById('serviceOverlay').style.display = 'flex';
+            }
+
+            switchView('MENU');
+            updateClock();
+        }
+
+        function checkShiftLock(shiftStr) {
+            const timePart = shiftStr.match(/(\d{2}:\d{2})–(\d{2}:\d{2})/);
+            if (!timePart) return;
+
+            const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+            const [startH, startM] = timePart[1].split(':').map(Number);
+            const [endH, endM] = timePart[2].split(':').map(Number);
+            
+            let startTime = startH * 60 + startM;
+            let endTime = endH * 60 + endM;
+
+            let isAllowed = false;
+            if (startTime < endTime) {
+                isAllowed = currentTime >= startTime && currentTime <= endTime;
+            } else {
+                isAllowed = currentTime >= startTime || currentTime <= endTime;
+            }
+
+            if (!isAllowed) {
+                isSystemRestricted = true;
+                applyRestrictionUI();
+                triggerRestrictedPopup();
+            } else {
+                isSystemRestricted = false;
+                document.getElementById('serviceOverlay').style.display = 'flex';
+            }
+        }
+
+        function applyRestrictionUI() {
+            document.getElementById('main-frame-wrapper').classList.add('restricted-locked');
+            document.getElementById('nav-container').classList.add('restricted-locked');
+            
+            // Allow clicks on buttons but intercept them to show popup
+            const allNavBtns = document.querySelectorAll('.nav-button:not(.logout-unlocked)');
+            allNavBtns.forEach(btn => {
+                const oldCall = btn.onclick;
+                btn.onclick = (e) => {
+                    if(isSystemRestricted) {
+                        triggerRestrictedPopup();
+                        return;
+                    }
+                    if(oldCall) oldCall.call(btn, e);
+                };
+            });
+            
+            // Still show popup when clicking empty space or restricted grid items
+            document.getElementById('menuContainer').onclick = () => { if(isSystemRestricted) triggerRestrictedPopup(); };
+            document.getElementById('order-summary').onclick = () => { if(isSystemRestricted) triggerRestrictedPopup(); };
+        }
+
+        function triggerRestrictedPopup() {
+            const now = new Date();
+            const warningText = `ACCESS DENIED: OUTSIDE AUTHORIZED SHIFT HOURS\n\n` +
+                                `Employee: ${userProfile.name}\n` +
+                                `Assigned Shift: ${userProfile.shift}\n` +
+                                `System Time: ${now.toLocaleTimeString()}\n\n` +
+                                `NOTICE: This terminal is locked. Please contact your manager if you believe this is an error.`;
+            
+            showWinMsg("ACCESS_RESTRICTED.EXE", warningText, false, null, true);
+        }
+
+        function handleSearch() {
+            if (isSystemRestricted) { triggerRestrictedPopup(); return; }
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const dropdown = document.getElementById('searchDropdown');
+            dropdown.innerHTML = '';
+            
+            if (!query) { dropdown.style.display = 'none'; return; }
+
+            const matches = menuData.filter(i => !i.hidden && i.name.toLowerCase().includes(query));
+            
+            if (matches.length > 0) {
+                dropdown.style.display = 'block';
+                matches.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'search-item';
+                    div.innerHTML = `
+                        <img src="${item.img}" onerror="this.src='undpfm.png'">
+                        <div>
+                            <div style="font-weight:bold;">${item.name}</div>
+                            <div style="font-size:10px;">RM ${item.price.toFixed(2)}</div>
+                        </div>
+                    `;
+                    div.onclick = () => {
+                        document.getElementById('categorySelect').value = "ALL";
+                        activeSubFilter = "ALL";
+                        renderMenu();
+                        
+                        setTimeout(() => {
+                            const itemsOnPage = document.querySelectorAll('.food-item b');
+                            for (let b of itemsOnPage) {
+                                if (b.innerText === item.name) {
+                                    b.parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    b.parentElement.style.outline = "3px solid #000080";
+                                    setTimeout(() => b.parentElement.style.outline = "none", 2000);
+                                    break;
+                                }
+                            }
+                        }, 100);
+                        
+                        dropdown.style.display = 'none';
+                        document.getElementById('searchInput').value = '';
+                    };
+                    dropdown.appendChild(div);
+                });
+            } else {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        function setSubFilter(filter, btn) {
+            if (isSystemRestricted) { triggerRestrictedPopup(); return; }
+            activeSubFilter = filter;
+            document.querySelectorAll('.sub-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderMenu();
+        }
+
+        function switchView(view) {
+            if (isSystemRestricted && view !== 'MENU') { triggerRestrictedPopup(); return; }
+            const container = document.getElementById('menuContainer');
+            const toolbar = document.getElementById('toolbar');
+            const winTitle = document.getElementById('win-title');
+            container.innerHTML = '';
+            
+            if (view === 'MENU') {
+                toolbar.style.display = 'block';
+                winTitle.innerText = "POS_MENU_EXPLORER.EXE";
+                renderMenu();
+            } else {
+                toolbar.style.display = 'none';
+                if (view === 'TRANSACTIONS') {
+                    winTitle.innerText = "TRANS_LOG_READER.EXE";
+                    renderTransactions();
+                } else if (view === 'INVENTORY') {
+                    winTitle.innerText = "STOCK_MANAGER.EXE";
+                    renderInventory();
+                } else if (view === 'ITEMS') {
+                    winTitle.innerText = "PRICE_DATABASE_EDITOR.EXE";
+                    renderItemEditor();
+                } else if (view === 'SETTINGS') {
+                    winTitle.innerText = "SYSTEM_SETTINGS.EXE";
+                    renderSettings();
+                }
+            }
+        }
+
+        function renderMenu() {
+            const container = document.getElementById('menuContainer');
+            const catSelection = document.getElementById('categorySelect').value;
+            container.innerHTML = '';
+            const categories = catSelection === 'ALL' ? ['FOOD', 'DRINKS', 'OTHER'] : [catSelection];
+
+            categories.forEach(category => {
+                let items = menuData.filter(i => i.cat === category && !i.hidden);
+                
+                if (activeSubFilter === "Mee") {
+                    items = items.filter(i => {
+                        const n = i.name.toLowerCase();
+                        return n.includes("mee") || n.includes("maggi") || n.includes("kuey teow") || n.includes("bihun") || n.includes("wat tan hor");
+                    });
+                } else if (activeSubFilter !== "ALL") {
+                    items = items.filter(i => i.name.toLowerCase().includes(activeSubFilter.toLowerCase()));
+                }
+
+                if (items.length > 0) {
+                    const head = document.createElement('div');
+                    head.className = 'category-header';
+                    head.innerText = category;
+                    container.appendChild(head);
+                    const grid = document.createElement('div');
+                    grid.className = 'menu-grid';
+                    items.forEach(item => {
+                        const div = document.createElement('div');
+                        const isSoldOut = item.stock <= 0;
+                        div.className = 'food-item' + (isSoldOut ? ' unavailable' : '');
+                        div.innerHTML = `${item.bestSeller ? '<div class="best-seller-tag">HOT!</div>' : ''}
+                                         <img src="${item.img || 'undpfm.png'}" onerror="this.src='undpfm.png'">
+                                         <b>${item.name}</b><br>RM ${item.price.toFixed(2)}`;
+                        if (!isSoldOut) div.onclick = (e) => { 
+                            if(isSystemRestricted) { triggerRestrictedPopup(); return; }
+                            handleItemClick(item); 
+                        };
+                        grid.appendChild(div);
+                    });
+                    container.appendChild(grid);
+                }
+            });
+        }
+
+        function renderItemEditor() {
+            const container = document.getElementById('menuContainer');
+            let html = `<div class="profile-card">
+                <h3>ADD NEW PRODUCT</h3>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px;">
+                    <input type="text" id="new-name" placeholder="Name">
+                    <input type="number" id="new-price" step="0.1" placeholder="Price (RM)">
+                    <select id="new-cat">
+                        <option value="FOOD">FOOD</option>
+                        <option value="DRINKS">DRINKS</option>
+                        <option value="OTHER">OTHER</option>
+                    </select>
+                    <input type="text" id="new-img" placeholder="Image Name">
+                    <input type="number" id="new-stock" placeholder="Initial Stock">
+                    <button class="nav-button" onclick="addNewItem()" style="background:var(--win-blue); color:white; text-align:center;">+ ADD ITEM</button>
+                </div>
+            </div>
+            <h3>DATABASE EDITOR</h3>
+            <table class="win-table">
+                <tr><th>ITEM NAME</th><th>PRICE (RM)</th><th>ACTION</th></tr>`;
+            
+            menuData.forEach((item, index) => {
+                if(!item.hidden) {
+                    html += `<tr>
+                        <td><input type="text" id="nm-${index}" value="${item.name}" style="width:100%"></td>
+                        <td><input type="number" id="prc-${index}" step="0.1" value="${item.price.toFixed(2)}" style="width:60px"></td>
+                        <td>
+                            <button onclick="updateItemDetails(${index})">SAVE</button>
+                            <button onclick="toggleItemVisibility(${index}, true)" style="background:#f00; color:#fff;">X</button>
+                        </td>
+                    </tr>`;
+                }
+            });
+            container.innerHTML = html + "</table>";
+        }
+
+        function updateItemDetails(idx) {
+            menuData[idx].name = document.getElementById(`nm-${idx}`).value;
+            menuData[idx].price = parseFloat(document.getElementById(`prc-${idx}`).value);
+            saveDatabase();
+            showWinMsg("SUCCESS", "Record updated.");
+            renderItemEditor();
+        }
+
+        function addNewItem() {
+            const n = document.getElementById('new-name').value;
+            const p = parseFloat(document.getElementById('new-price').value);
+            const c = document.getElementById('new-cat').value;
+            const i = document.getElementById('new-img').value || "undpfm.png";
+            const s = parseInt(document.getElementById('new-stock').value) || 0;
+
+            if(!n || isNaN(p)) { showWinMsg("ERROR", "Invalid input data."); return; }
+            menuData.push({ cat: c, name: n, img: i, price: p, stock: s, hidden: false });
+            saveDatabase();
+            showWinMsg("SUCCESS", "Item added to database.");
+            renderItemEditor();
+        }
+
+        function toggleItemVisibility(idx, hide) {
+            menuData[idx].hidden = hide;
+            saveDatabase();
+            renderItemEditor();
+        }
+
+        function renderInventory() {
+            let html = `<h3>STOCK LEVELS</h3><table class="win-table"><tr><th>ITEM</th><th>STOCK</th><th>ACTION</th></tr>`;
+            menuData.forEach((item, index) => {
+                if(!item.hidden) {
+                    html += `<tr><td>${item.name}</td><td><input type="number" id="stk-${index}" value="${item.stock}" style="width:50px"></td>
+                    <td><button onclick="updateStock(${index})">SAVE</button></td></tr>`;
+                }
+            });
+            document.getElementById('menuContainer').innerHTML = html + "</table>";
+        }
+
+        function renderTransactions() {
+            let totalSales = transactionHistory.reduce((a, b) => a + parseFloat(b.amount), 0);
+            let html = `<div class="profile-card"><h3>TOTAL HISTORY: RM ${totalSales.toFixed(2)}</h3></div>
+            <table class="win-table"><tr><th>TIMESTAMP</th><th>TYPE</th><th>TOTAL</th></tr>`;
+            transactionHistory.forEach(t => {
+                html += `<tr><td>${t.time}</td><td>${t.type}</td><td>RM ${t.amount}</td></tr>`;
+            });
+            document.getElementById('menuContainer').innerHTML = html + "</table>";
+        }
+
+        function renderSettings() {
+            document.getElementById('menuContainer').innerHTML = `
+                <div class="profile-card">
+                    <h3>SYSTEM INFO</h3>
+                    <p>OS: UND-PERFORMANCE TERMINAL v3.1</p>
+                    <hr>
+                    <button class="nav-button" onclick="showWinMsg('INFO', 'Database integrity check: 100% OK')">RUN SYSTEM DIAGNOSTIC</button>
+                    <button class="nav-button" style="background:#f00; color:#fff;" onclick="showWinMsg('WARNING', 'Reset all data?', true, ()=> { localStorage.removeItem('pos_history'); localStorage.removeItem('pos_inventory_db'); location.reload(); })">WIPE SALES HISTORY</button>
+                </div>`;
+        }
+
+        function updateStock(idx) {
+            menuData[idx].stock = parseInt(document.getElementById(`stk-${idx}`).value);
+            saveDatabase();
+            showWinMsg("SUCCESS", "Stock updated.");
+        }
+
+        function handleItemClick(item) {
+            if (item.cat === "DRINKS" && item.hasTemp) {
+                pendingItem = item;
+                document.getElementById('modalItemName').innerText = item.name;
+                document.getElementById('drinkModalImg').src = item.img;
+                document.getElementById('drinkModal').style.display = 'flex';
+            } else {
+                let p = item.price;
+                let n = item.name;
+                if (item.cat === "DRINKS" && selectedServiceStr === "TAKE AWAY") { p += 0.5; n += " (T/A)"; }
+                addToCart(n, p, item);
+            }
+        }
+
+        function confirmDrink(temp) {
+            let p = pendingItem.price;
+            let n = pendingItem.name + ` [${temp}]`;
+            if (temp === 'COLD') p += 0.5;
+            if (selectedServiceStr === "TAKE AWAY") { p += 0.5; n += " (T/A)"; }
+            addToCart(n, p, pendingItem);
+            closeDrinkModal();
+        }
+
+        function addToCart(name, price, origin) {
+            cart.push({ name: name, price: price, img: origin.img });
+            origin.stock--;
+            saveDatabase();
+            updateCartUI();
+        }
+
+        function removeFromCart(idx) {
+            if(isSystemRestricted) { triggerRestrictedPopup(); return; }
+            let itemName = cart[idx].name.split(" [")[0].replace(" (T/A)", "");
+            let origin = menuData.find(m => m.name === itemName);
+            if(origin) origin.stock++;
+            cart.splice(idx, 1);
+            saveDatabase();
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const list = document.getElementById('cart-items');
+            list.innerHTML = '';
+            let total = 0;
+            cart.forEach((item, index) => {
+                total += item.price;
+                list.innerHTML += `<div class="cart-row"><span>${item.name}</span><span>RM ${item.price.toFixed(2)} <button onclick="removeFromCart(${index})" style="background:#f00; color:#fff; border:1px solid #000; cursor:pointer;">X</button></span></div>`;
+            });
+            document.getElementById('cart-total').innerText = total.toFixed(2);
+        }
+
+        function selectService(type) {
+            selectedServiceStr = type;
+            document.getElementById('serviceOverlay').style.display = 'none';
+            document.getElementById('service-type').innerText = `TYPE: ${type}`;
+        }
+
+        function proceedToPayment() {
+            if (isSystemRestricted) { triggerRestrictedPopup(); return; }
+            if (cart.length === 0) { showWinMsg("ALERT", "Cart is empty!"); return; }
+            localStorage.setItem("currentOrder", JSON.stringify(cart));
+            localStorage.setItem("totalAmount", document.getElementById('cart-total').innerText);
+            localStorage.setItem("serviceType", selectedServiceStr);
+            window.location.href = "payment.html";
+        }
+
+        function triggerLogout() {
+            showWinMsg("LOGOUT", "Exit terminal?", true, () => {
+                localStorage.removeItem("loggedInUser");
+                window.location.href = "index.html";
+            });
+        }
+
+        function showWinMsg(title, text, confirmMode = false, onConfirm = null, restrictionMode = false) {
+            const modal = document.getElementById('customModal');
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalText').innerText = text;
+            const btnContainer = document.getElementById('modalButtons');
+            btnContainer.innerHTML = '';
+            
+            if (restrictionMode) {
+                const closeBtn = document.createElement('button'); 
+                closeBtn.className='nav-button'; closeBtn.innerText="CLOSE"; 
+                closeBtn.style.textAlign = "center";
+                closeBtn.onclick=()=> { modal.style.display='none'; };
+                
+                const contactBtn = document.createElement('button');
+                contactBtn.className='nav-button'; contactBtn.innerText="CONTACT SUPPORT";
+                contactBtn.style.textAlign = "center";
+                contactBtn.onclick=()=> { location.href='contact.html'; };
+                
+                btnContainer.appendChild(closeBtn);
+                btnContainer.appendChild(contactBtn);
+            } else if (confirmMode) {
+                const y = document.createElement('button'); y.className='nav-button'; y.innerText="YES"; y.onclick=()=>{modal.style.display='none'; onConfirm();};
+                const n = document.createElement('button'); n.className='nav-button'; n.innerText="NO"; n.onclick=()=>modal.style.display='none';
+                btnContainer.appendChild(y); btnContainer.appendChild(n);
+            } else {
+                const ok = document.createElement('button'); ok.className='nav-button'; ok.innerText="OK"; ok.onclick=()=>modal.style.display='none';
+                btnContainer.appendChild(ok);
+            }
+            modal.style.display = 'flex';
+        }
+
+        function closeDrinkModal() { document.getElementById('drinkModal').style.display = 'none'; pendingItem = null; }
+        function updateClock() { document.getElementById('top-clock').innerText = new Date().toLocaleTimeString(); setTimeout(updateClock, 1000); }
+        
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-container')) {
+                document.getElementById('searchDropdown').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
