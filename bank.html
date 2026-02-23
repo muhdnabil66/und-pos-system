@@ -49,6 +49,7 @@
             grid-template-columns: 1fr 300px;
             gap: 20px;
             flex: 1;
+            overflow: hidden; /* Added to keep children contained */
         }
 
         .payment-grid {
@@ -88,6 +89,18 @@
             padding: 15px;
             display: flex;
             flex-direction: column;
+            overflow: hidden; /* Ensures child overflow is handled by flex */
+        }
+
+        #item-list {
+            font-size: 11px; 
+            flex: 1; /* Allows list to grow/shrink */
+            overflow-y: auto; /* Enable scrolling */
+            min-height: 0;   /* Crucial fix for flexbox scrolling */
+            border: 1px solid #808080;
+            background: #eee;
+            margin-bottom: 10px;
+            padding: 5px;
         }
 
         .total-display {
@@ -98,7 +111,7 @@
             padding: 10px;
             text-align: right;
             border: 2px solid var(--win-border-dark);
-            margin-top: auto;
+            margin-top: 5px;
         }
 
         /* Standardized Modals */
@@ -182,7 +195,7 @@
             <div class="summary-pane">
                 <strong>PAYMENT SUMMARY</strong>
                 <hr style="width:100%">
-                <div id="item-list" style="font-size:11px; flex:1"></div>
+                <div id="item-list"></div>
                 <div style="font-size:12px; border-top:1px solid #808080; padding-top:5px;">
                     Subtotal: RM <span id="sub-total">0.00</span><br>
                     Processing Fee: RM 0.53

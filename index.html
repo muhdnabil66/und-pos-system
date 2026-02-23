@@ -29,7 +29,6 @@
             font-family: "Courier New", monospace;
         }
 
-        /* Top Right DateTime Display */
         #topRightClock {
             text-align: right;
         }
@@ -126,27 +125,28 @@
             font-family: "Courier New", monospace;
         }
 
-        /* Legacy Popups */
-        .dummy-popup {
-            position: absolute;
-            width: 300px;
-            background: #d4d0c8;
-            border: 2px solid #000;
-            z-index: 1000;
-            box-shadow: 5px 5px 0px rgba(0,0,0,0.4);
-        }
-
-        .dummy-title {
-            background: #808080;
-            color: white;
-            font-size: 11px;
-            padding: 4px 8px;
-            font-weight: bold;
+        /* Black & White Social Icons */
+        .social-icons {
+            margin-top: 12px;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
+            gap: 20px;
         }
 
-        .dummy-content { padding: 20px; font-size: 13px; text-align: center; }
+        .social-icons a {
+            filter: grayscale(1) contrast(1.5);
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .social-icons a:hover {
+            opacity: 1;
+        }
+
+        .social-icons img {
+            width: 18px;
+            height: 18px;
+        }
 
         #loadingOverlay {
             display: none;
@@ -223,12 +223,12 @@
 
             <div class="field-group">
                 <label>USERNAME:</label>
-                <input type="text" id="username" onfocus="startGlitchSequence()" autocomplete="off">
+                <input type="text" id="username" autocomplete="off">
             </div>
 
             <div class="field-group">
                 <label>PASSWORD:</label>
-                <input type="password" id="pin" maxlength="6" onfocus="startGlitchSequence()" onkeypress="return onlyNumbers(event)">
+                <input type="password" id="pin" maxlength="6" onkeypress="return onlyNumbers(event)">
             </div>
 
             <div class="button-row">
@@ -242,6 +242,18 @@
         © 1992-2003 UND Performance<br>
         ALL RIGHTS RESERVED. UNAUTHORIZED ACCESS IS PROHIBITED.<br>
         LOCAL NODE: BAYAN_LEPAS_PNG // TRACE_ROUTE: ENABLED
+
+        <div class="social-icons">
+            <a href="https://www.tiktok.com/@und.performance?_r=1&_t=ZS-94APzNR6IIG" target="_blank">
+                <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok">
+            </a>
+            <a href="https://www.instagram.com/und.performance?igsh=MXc4NnluY2ZlMTJsag%3D%3D&utm_source=qr" target="_blank">
+                <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram">
+            </a>
+            <a href="contact.html">
+                <img src="https://cdn-icons-png.flaticon.com/512/542/542689.png" alt="Email">
+            </a>
+        </div>
     </div>
 
     <div class="sys-meta-bottom-right">
@@ -266,7 +278,6 @@
     </div>
 
     <script>
-        // LIVE CLOCK FUNCTION
         function startTime() {
             const today = new Date();
             const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -277,8 +288,6 @@
             let s = today.getSeconds();
             m = checkTime(m);
             s = checkTime(s);
-            
-            // Setting the clock for the top right display
             document.getElementById('topRightClock').innerHTML = d + " " + date + " " + h + ":" + m + ":" + s;
             setTimeout(startTime, 1000);
         }
@@ -294,58 +303,16 @@
             { name: "Daniel Lee", code: "UNDF-PNG-23005", undid: "UNDid-9F2D-77A4", loginId: "daniel05", pin: "316904", shift: "S2 12:15–22:30" },
             { name: "Nurul Huda", code: "UNDF-PNG-24031", undid: "UNDid-2E6A-54C8", loginId: "nurul31", pin: "902673", shift: "S3 16:30–10:30" },
             { name: "Faris Hakim", code: "UNDF-PNG-22001", undid: "UNDid-1B8D-33F2", loginId: "faris01", pin: "185739", shift: "08:00-22:30" },
-            // Added Manager Account
             { name: "Terminal Manager", code: "UNDF-MGMT-001", undid: "UNDid-MGMT-ROOT", loginId: "manager01", pin: "111111", shift: "ADMIN_ACCESS" }
         ];
-
-        let sequenceStarted = false;
 
         function onlyNumbers(e) {
             return (e.charCode >= 48 && e.charCode <= 57);
         }
 
-        function startGlitchSequence() {
-            if (sequenceStarted) return;
-            sequenceStarted = true;
-            setTimeout(() => spawnPopup("System Warning", "Detected latency in I/O Channel 4.", true), 2000);
-        }
-
-        function spawnPopup(title, msg, canClose) {
-            document.getElementById('inputBlocker').style.display = 'block';
-            const container = document.getElementById('glitchContainer');
-            const popup = document.createElement('div');
-            popup.className = 'dummy-popup';
-            popup.style.top = '40%';
-            popup.style.left = 'calc(50% - 150px)';
-
-            let btn = canClose ? `<span onclick="closePopup(this)" style="cursor:pointer; border:1px solid white; padding:0 2px;">X</span>` : '';
-
-            popup.innerHTML = `
-                <div class="dummy-title"><span>${title}</span>${btn}</div>
-                <div class="dummy-content">
-                    ${msg}<br><br>
-                    <button onclick="closePopup(this)">OK</button>
-                </div>
-            `;
-            container.appendChild(popup);
-        }
-
-        function closePopup(el) {
-            el.closest('.dummy-popup').remove();
-            document.getElementById('inputBlocker').style.display = 'none';
-            setTimeout(() => {
-                if(Math.random() > 0.5) {
-                    spawnPopup("Memory Error", "Stack overflow at 0x00FF2. Please wait for sync.", true);
-                } else {
-                    spawnPopup("Protocol Alert", "Legacy handshake required for node PNG-24.", true);
-                }
-            }, 5000);
-        }
-
         function handleLogin() {
             const u = document.getElementById('username').value.trim().toLowerCase();
             const p = document.getElementById('pin').value;
-
             const user = employees.find(e => e.loginId === u);
 
             if (user && p === user.pin) {
@@ -362,7 +329,6 @@
             const txt = document.getElementById('percentText');
             const msg = document.getElementById('loadMsg');
             overlay.style.display = 'flex';
-
             let progress = 0;
             const statusMsgs = ["MOUNTING DRIVE...", "FETCHING DATABASE...", "DECRYPTING RSA...", "READY."];
 
@@ -370,11 +336,9 @@
                 progress += 1;
                 bar.style.width = progress + "%";
                 txt.innerText = progress + "%";
-
                 if (progress == 25) msg.innerText = statusMsgs[1];
                 if (progress == 60) msg.innerText = statusMsgs[2];
                 if (progress == 90) msg.innerText = statusMsgs[3];
-
                 if (progress >= 100) {
                     clearInterval(interval);
                     window.location.href = "menu.html";
