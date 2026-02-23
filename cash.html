@@ -48,7 +48,6 @@
             gap: 10px;
             padding: 10px;
             flex: 1;
-            /* Added overflow hidden to prevent grid blow-out */
             overflow: hidden;
             height: calc(100% - 30px);
         }
@@ -60,7 +59,6 @@
             display: flex;
             flex-direction: column;
             padding: 10px;
-            /* Ensure the box doesn't grow past its grid container */
             overflow: hidden;
         }
 
@@ -70,7 +68,6 @@
             overflow-y: auto;
             font-size: 12px;
             border: 1px solid #808080;
-            /* Fix for flexbox scrolling */
             min-height: 0; 
         }
 
@@ -92,7 +89,7 @@
             border: 2px solid var(--win-border-dark);
             font-size: 24px;
             padding: 10px;
-            margin-bottom: 25px; 
+            margin-bottom: 10px; 
             text-align: right;
             height: 35px;
         }
@@ -100,7 +97,7 @@
         .quick-cash-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 5px;
         }
 
         .keypad {
@@ -123,6 +120,7 @@
         .win-btn:active { border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark); }
         .btn-green { background: #008000; color: white; }
         .btn-red { background: #800000; color: white; }
+        .btn-blue { background: #000080; color: white; }
 
         .modal-overlay {
             display: none;
@@ -169,7 +167,7 @@
         .invoice-details-stacked { margin-bottom: 20px; font-size: 12px; border-left: 3px solid #008080; padding-left: 10px; }
         .item-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         .item-table th { border-bottom: 1px solid #ddd; padding: 8px; text-align: left; background: #f2f2f2; }
-        .item-table td { padding: 8px; border-bottom: 1px solid #eee; }
+        .item-table td { padding: 8px; border-bottom: 1 solid #eee; }
         .total-section { float: right; width: 200px; }
         .total-row { display: flex; justify-content: space-between; padding: 5px 0; }
         .grand-total { font-weight: bold; border-top: 2px solid #008080; margin-top: 10px; padding-top: 10px; font-size: 18px; color: #008080; }
@@ -209,6 +207,7 @@
                     <button class="win-btn" onclick="quickCash(20)">RM 20</button>
                     <button class="win-btn" onclick="quickCash(50)">RM 50</button>
                     <button class="win-btn" onclick="quickCash(100)">RM 100</button>
+                    <button class="win-btn btn-blue" style="grid-column: span 2;" onclick="exactCash()">EXACT AMOUNT</button>
                 </div>
             </div>
 
@@ -316,6 +315,12 @@
             startProcessing();
         }
 
+        function exactCash() {
+            currentInput = totalDue.toString();
+            document.getElementById('cash-input').innerText = totalDue.toFixed(2);
+            startProcessing();
+        }
+
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
         function startProcessing() {
@@ -399,7 +404,7 @@
                 time: now.toLocaleString(),
                 type: localStorage.getItem("serviceType") || "DINE IN",
                 amount: totalDue.toFixed(2),
-                items: JSON.parse(localStorage.getItem("currentOrder")) || []
+                cart: JSON.parse(localStorage.getItem("currentOrder")) || []
             };
             history.push(newRecord);
             localStorage.setItem("pos_history", JSON.stringify(history));

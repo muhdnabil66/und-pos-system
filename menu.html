@@ -65,7 +65,7 @@
             border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
             padding: 8px;
             margin-bottom: 5px;
-            text-align: left;
+            text-align: center; /* Fixed: Forced center alignment */
             font-weight: bold;
             cursor: pointer;
             font-size: 12px;
@@ -232,7 +232,6 @@
         /* Restricted Appearance */
         .restricted-locked {
             filter: grayscale(1);
-            /* pointer-events: none; REMOVED to allow scroll */
         }
         .logout-unlocked {
             pointer-events: auto !important;
@@ -293,6 +292,63 @@
             font-size: 9px; padding: 2px 4px;
             border: 1px solid black; z-index: 5;
         }
+
+        /* Dashboard Styles */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #fff;
+            border: 1px solid #808080;
+            padding: 8px;
+            text-align: center;
+            box-shadow: 1px 1px 0 #000;
+        }
+        .history-box {
+            width: 120px;
+            height: 80px;
+            background: #fff;
+            border: 2px solid var(--win-border-dark);
+            display: inline-block;
+            margin: 5px;
+            padding: 5px;
+            cursor: pointer;
+            font-size: 10px;
+            vertical-align: top;
+        }
+        .history-box:hover { border-color: var(--win-blue); }
+
+        /* Modal specific button centering */
+        #modalButtons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            padding-bottom: 10px;
+        }
+        #modalButtons .nav-button {
+            width: 80px;
+            margin: 0;
+        }
+
+        /* Loading Bar Style */
+        .progress-container {
+            border: 2px solid;
+            border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark);
+            background: #fff;
+            height: 25px;
+            display: flex;
+            padding: 2px;
+            margin: 10px 0;
+        }
+        .progress-segment {
+            background: var(--win-blue);
+            width: 10%;
+            height: 100%;
+            margin-right: 2px;
+        }
     </style>
 </head>
 <body onload="initMenu()">
@@ -304,7 +360,7 @@
                 <div id="modalContent">
                     <p id="modalText" style="font-size: 12px; margin-bottom: 20px; white-space: pre-line;">Message content here.</p>
                 </div>
-                <div id="modalButtons" style="display: flex; gap: 10px; justify-content: center;"></div>
+                <div id="modalButtons"></div>
             </div>
         </div>
     </div>
@@ -315,8 +371,8 @@
             <div style="padding: 20px; text-align: center;">
                 <h2 style="margin-top: 0;">SELECT SERVICE TYPE</h2>
                 <div style="display: flex; gap: 15px;">
-                    <button class="nav-button" style="flex: 1; height: 100px; text-align: center; font-size: 16px;" onclick="selectService('DINE IN')">🍽️<br>DINE IN</button>
-                    <button class="nav-button" style="flex: 1; height: 100px; text-align: center; font-size: 16px;" onclick="selectService('TAKE AWAY')">🥡<br>TAKE AWAY</button>
+                    <button class="nav-button" style="flex: 1; height: 100px;" onclick="selectService('DINE IN')">🍽️<br>DINE IN</button>
+                    <button class="nav-button" style="flex: 1; height: 100px;" onclick="selectService('TAKE AWAY')">🥡<br>TAKE AWAY</button>
                 </div>
             </div>
         </div>
@@ -337,6 +393,7 @@
             <button class="nav-button" onclick="switchView('TRANSACTIONS')">📂 TRANSACTIONS</button>
             <button class="nav-button" onclick="switchView('INVENTORY')">📊 INVENTORY</button>
             <button class="nav-button" onclick="switchView('ITEMS')">✏️ EDIT ITEMS</button>
+            <button class="nav-button" onclick="switchView('SALES')">📈 SALES REPORT</button>
             <button class="nav-button" onclick="switchView('SETTINGS')">⚙️ SETTINGS</button>
         </div>
         <button class="nav-button logout-unlocked" style="margin-top: auto; background: #c00; color: white;" onclick="triggerLogout()">🔓 LOGOUT</button>
@@ -385,11 +442,12 @@
                     <div class="total-box">
                         RM <span id="cart-total">0.00</span>
                     </div>
-                    <button class="nav-button" id="pay-btn" style="background:#008000; color:white; text-align:center; margin-top:10px;" onclick="proceedToPayment()">PROCEED TO PAYMENT >> </button>
+                    <button class="nav-button" id="pay-btn" style="background:#008000; color:white; margin-top:10px;" onclick="proceedToPayment()">PROCEED TO PAYMENT >> </button>
                 </div>
             </div>
 
             <div class="status-bar">
+                <span id="status-date">DATE: --/--/----</span>
                 <span id="status-node">NODE: PNG-24 ACTIVE</span>
                 <span id="status-user">USER: Unknown</span>
             </div>
@@ -404,11 +462,11 @@
                 <div id="modalItemName" style="font-weight:bold; margin-top:5px;">ITEM</div>
             </div>
             <div class="option-container" style="display:flex; gap:10px; padding:15px;">
-                <div class="temp-option" style="flex:1; background:var(--win-grey); border:2px solid; border-color:var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light); padding:10px; cursor:pointer;" onclick="confirmDrink('HOT')">♨️ HOT<br>(Base Price)</div>
-                <div class="temp-option" style="flex:1; background:var(--win-grey); border:2px solid; border-color:var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light); padding:10px; cursor:pointer;" onclick="confirmDrink('COLD')">❄️ COLD<br>(+RM 0.50)</div>
+                <div class="temp-option" style="flex:1; background:var(--win-grey); border:2px solid; border-color:var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light); padding:10px; cursor:pointer; text-align: center;" onclick="confirmDrink('HOT')">♨️ HOT<br>(Base Price)</div>
+                <div class="temp-option" style="flex:1; background:var(--win-grey); border:2px solid; border-color:var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light); padding:10px; cursor:pointer; text-align: center;" onclick="confirmDrink('COLD')">❄️ COLD<br>(+RM 0.50)</div>
             </div>
             <div style="text-align:center; padding-bottom:10px;">
-                <button class="nav-button" style="width:80%; margin: 0 auto; text-align: center;" onclick="closeDrinkModal()">CANCEL</button>
+                <button class="nav-button" style="width:80%; margin: 0 auto;" onclick="closeDrinkModal()">CANCEL</button>
             </div>
         </div>
     </div>
@@ -483,7 +541,6 @@
             { cat: "FOOD", name: "Ayam Goreng Berempah", img: "ayam_berempah.png", price: 4.00, stock: 40, hidden: false },
             { cat: "FOOD", name: "Keropok Lekor", img: "lekor.png", price: 7.00, stock: 40, hidden: false },
             { cat: "FOOD", name: "Otak-otak", img: "otak_otak.png", price: 1.00, stock: 100, hidden: false },
-            // DRINKS
             { cat: "DRINKS", name: "Teh", img: "teh.png", price: 2.50, hasTemp: true, stock: 100, hidden: false },
             { cat: "DRINKS", name: "Kopi", img: "kopi.png", price: 2.50, hasTemp: true, stock: 100, hidden: false },
             { cat: "DRINKS", name: "Milo", img: "milo.png", price: 3.50, hasTemp: true, stock: 100, hidden: false },
@@ -506,7 +563,6 @@
             { cat: "DRINKS", name: "Extra Joss Mangga", img: "mangga.png", price: 3.00, hasTemp: false, stock: 100, hidden: false },
             { cat: "DRINKS", name: "Extra Joss Oren", img: "oren.png", price: 3.00, hasTemp: false, stock: 100, hidden: false },
             { cat: "DRINKS", name: "Extra Joss Original", img: "original.png", price: 3.00, hasTemp: false, stock: 100, hidden: false },
-            // OTHER (Placeholder, items moved to food)
             { cat: "OTHER", name: "Plastic Bag", img: "undpfm.png", price: 0.20, stock: 1000, hidden: false }
         ];
 
@@ -515,6 +571,7 @@
         let pendingItem = null;
         let selectedServiceStr = "";
         let transactionHistory = JSON.parse(localStorage.getItem("pos_history")) || [];
+        let archivedSales = JSON.parse(localStorage.getItem("pos_archived_sales")) || [];
         let activeSubFilter = "ALL";
         let isSystemRestricted = false;
         let userProfile = null;
@@ -533,7 +590,8 @@
             document.getElementById('prof-shift').innerHTML = `<b>SHIFT:</b> ${userProfile.shift}`;
             document.getElementById('status-user').innerText = `USER: ${userProfile.loginId.toUpperCase()}`;
 
-            // Priority Check: Shift hours vs Manager bypass
+            checkMidnightReset();
+
             if (userProfile.loginId !== "manager01") {
                 checkShiftLock(userProfile.shift);
             } else {
@@ -544,25 +602,53 @@
             updateClock();
         }
 
+        function checkMidnightReset() {
+            const todayStr = new Date().toDateString();
+            const lastLog = localStorage.getItem("pos_last_date");
+
+            if (lastLog && lastLog !== todayStr) {
+                const daySummary = calculateDaySales();
+                if (daySummary.total > 0) {
+                    archivedSales.push({
+                        date: lastLog,
+                        total: daySummary.total,
+                        items: daySummary.items,
+                        transactions: [...transactionHistory]
+                    });
+                    localStorage.setItem("pos_archived_sales", JSON.stringify(archivedSales));
+                }
+                transactionHistory = [];
+                localStorage.setItem("pos_history", JSON.stringify([]));
+            }
+            localStorage.setItem("pos_last_date", todayStr);
+        }
+
+        function calculateDaySales() {
+            let total = 0;
+            let items = {};
+            transactionHistory.forEach(t => {
+                total += parseFloat(t.amount);
+                if(t.cart) {
+                    t.cart.forEach(c => {
+                        // Clean the name to group properly (remove [HOT]/[COLD] and (T/A))
+                        let cleanName = c.name.split(" [")[0].replace(" (T/A)", "");
+                        items[cleanName] = (items[cleanName] || 0) + 1;
+                    });
+                }
+            });
+            return { total, items };
+        }
+
         function checkShiftLock(shiftStr) {
             const timePart = shiftStr.match(/(\d{2}:\d{2})–(\d{2}:\d{2})/);
             if (!timePart) return;
-
             const now = new Date();
             const currentTime = now.getHours() * 60 + now.getMinutes();
             const [startH, startM] = timePart[1].split(':').map(Number);
             const [endH, endM] = timePart[2].split(':').map(Number);
-            
             let startTime = startH * 60 + startM;
             let endTime = endH * 60 + endM;
-
-            let isAllowed = false;
-            if (startTime < endTime) {
-                isAllowed = currentTime >= startTime && currentTime <= endTime;
-            } else {
-                isAllowed = currentTime >= startTime || currentTime <= endTime;
-            }
-
+            let isAllowed = startTime < endTime ? (currentTime >= startTime && currentTime <= endTime) : (currentTime >= startTime || currentTime <= endTime);
             if (!isAllowed) {
                 isSystemRestricted = true;
                 applyRestrictionUI();
@@ -576,33 +662,19 @@
         function applyRestrictionUI() {
             document.getElementById('main-frame-wrapper').classList.add('restricted-locked');
             document.getElementById('nav-container').classList.add('restricted-locked');
-            
-            // Allow clicks on buttons but intercept them to show popup
             const allNavBtns = document.querySelectorAll('.nav-button:not(.logout-unlocked)');
             allNavBtns.forEach(btn => {
                 const oldCall = btn.onclick;
                 btn.onclick = (e) => {
-                    if(isSystemRestricted) {
-                        triggerRestrictedPopup();
-                        return;
-                    }
+                    if(isSystemRestricted) { triggerRestrictedPopup(); return; }
                     if(oldCall) oldCall.call(btn, e);
                 };
             });
-            
-            // Still show popup when clicking empty space or restricted grid items
             document.getElementById('menuContainer').onclick = () => { if(isSystemRestricted) triggerRestrictedPopup(); };
-            document.getElementById('order-summary').onclick = () => { if(isSystemRestricted) triggerRestrictedPopup(); };
         }
 
         function triggerRestrictedPopup() {
-            const now = new Date();
-            const warningText = `ACCESS DENIED: OUTSIDE AUTHORIZED SHIFT HOURS\n\n` +
-                                `Employee: ${userProfile.name}\n` +
-                                `Assigned Shift: ${userProfile.shift}\n` +
-                                `System Time: ${now.toLocaleTimeString()}\n\n` +
-                                `NOTICE: This terminal is locked. Please contact your manager if you believe this is an error.`;
-            
+            const warningText = `ACCESS DENIED: OUTSIDE AUTHORIZED SHIFT HOURS\n\nEmployee: ${userProfile.name}\nShift: ${userProfile.shift}\n\nTerminal Locked.`;
             showWinMsg("ACCESS_RESTRICTED.EXE", warningText, false, null, true);
         }
 
@@ -611,28 +683,18 @@
             const query = document.getElementById('searchInput').value.toLowerCase();
             const dropdown = document.getElementById('searchDropdown');
             dropdown.innerHTML = '';
-            
             if (!query) { dropdown.style.display = 'none'; return; }
-
             const matches = menuData.filter(i => !i.hidden && i.name.toLowerCase().includes(query));
-            
             if (matches.length > 0) {
                 dropdown.style.display = 'block';
                 matches.forEach(item => {
                     const div = document.createElement('div');
                     div.className = 'search-item';
-                    div.innerHTML = `
-                        <img src="${item.img}" onerror="this.src='undpfm.png'">
-                        <div>
-                            <div style="font-weight:bold;">${item.name}</div>
-                            <div style="font-size:10px;">RM ${item.price.toFixed(2)}</div>
-                        </div>
-                    `;
+                    div.innerHTML = `<img src="${item.img}" onerror="this.src='undpfm.png'"><div><b>${item.name}</b><br>RM ${item.price.toFixed(2)}</div>`;
                     div.onclick = () => {
                         document.getElementById('categorySelect').value = "ALL";
                         activeSubFilter = "ALL";
                         renderMenu();
-                        
                         setTimeout(() => {
                             const itemsOnPage = document.querySelectorAll('.food-item b');
                             for (let b of itemsOnPage) {
@@ -644,15 +706,12 @@
                                 }
                             }
                         }, 100);
-                        
                         dropdown.style.display = 'none';
                         document.getElementById('searchInput').value = '';
                     };
                     dropdown.appendChild(div);
                 });
-            } else {
-                dropdown.style.display = 'none';
-            }
+            } else { dropdown.style.display = 'none'; }
         }
 
         function setSubFilter(filter, btn) {
@@ -685,6 +744,9 @@
                 } else if (view === 'ITEMS') {
                     winTitle.innerText = "PRICE_DATABASE_EDITOR.EXE";
                     renderItemEditor();
+                } else if (view === 'SALES') {
+                    winTitle.innerText = "SALES_PERFORMANCE_DASHBOARD.EXE";
+                    renderSalesDashboard();
                 } else if (view === 'SETTINGS') {
                     winTitle.innerText = "SYSTEM_SETTINGS.EXE";
                     renderSettings();
@@ -700,7 +762,6 @@
 
             categories.forEach(category => {
                 let items = menuData.filter(i => i.cat === category && !i.hidden);
-                
                 if (activeSubFilter === "Mee") {
                     items = items.filter(i => {
                         const n = i.name.toLowerCase();
@@ -737,38 +798,108 @@
 
         function renderItemEditor() {
             const container = document.getElementById('menuContainer');
-            let html = `<div class="profile-card">
+            let activeItemsHtml = `<h3>DATABASE EDITOR</h3><table class="win-table"><tr><th>ITEM NAME</th><th>PRICE (RM)</th><th>ACTION</th></tr>`;
+            let hiddenItemsHtml = `<h3 style="margin-top:30px; color:#666;">RECOVERY (HIDDEN ITEMS)</h3><table class="win-table" style="background:#eee; filter:grayscale(1); opacity:0.7;"><tr><th>ITEM NAME</th><th>ACTION</th></tr>`;
+            
+            let hasHidden = false;
+
+            menuData.forEach((item, index) => {
+                if(!item.hidden) {
+                    activeItemsHtml += `<tr>
+                        <td><input type="text" id="nm-${index}" value="${item.name}" style="width:100%"></td>
+                        <td><input type="number" id="prc-${index}" step="0.1" value="${item.price.toFixed(2)}" style="width:60px"></td>
+                        <td>
+                            <button onclick="updateItemDetails(${index})">SAVE</button>
+                            <button onclick="toggleItemVisibility(${index}, true)" style="background:#f00; color:#fff;">DELETE</button>
+                        </td>
+                    </tr>`;
+                } else {
+                    hasHidden = true;
+                    hiddenItemsHtml += `<tr>
+                        <td>${item.name}</td>
+                        <td><button onclick="toggleItemVisibility(${index}, false)" style="background:var(--win-blue); color:#fff;">[+] RECOVER</button></td>
+                    </tr>`;
+                }
+            });
+
+            let topForm = `<div class="profile-card">
                 <h3>ADD NEW PRODUCT</h3>
                 <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px;">
                     <input type="text" id="new-name" placeholder="Name">
                     <input type="number" id="new-price" step="0.1" placeholder="Price (RM)">
                     <select id="new-cat">
-                        <option value="FOOD">FOOD</option>
-                        <option value="DRINKS">DRINKS</option>
-                        <option value="OTHER">OTHER</option>
+                        <option value="FOOD">FOOD</option><option value="DRINKS">DRINKS</option><option value="OTHER">OTHER</option>
                     </select>
                     <input type="text" id="new-img" placeholder="Image Name">
                     <input type="number" id="new-stock" placeholder="Initial Stock">
-                    <button class="nav-button" onclick="addNewItem()" style="background:var(--win-blue); color:white; text-align:center;">+ ADD ITEM</button>
+                    <button class="nav-button" onclick="addNewItem()" style="background:var(--win-blue); color:white;">+ ADD ITEM</button>
                 </div>
-            </div>
-            <h3>DATABASE EDITOR</h3>
-            <table class="win-table">
-                <tr><th>ITEM NAME</th><th>PRICE (RM)</th><th>ACTION</th></tr>`;
-            
+            </div>`;
+
+            container.innerHTML = topForm + activeItemsHtml + "</table>" + (hasHidden ? hiddenItemsHtml + "</table>" : "");
+        }
+
+        function toggleItemVisibility(idx, hide) {
+            menuData[idx].hidden = hide;
+            saveDatabase();
+            renderItemEditor();
+        }
+
+        function renderInventory() {
+            let inStock = [];
+            let outStock = [];
             menuData.forEach((item, index) => {
                 if(!item.hidden) {
-                    html += `<tr>
-                        <td><input type="text" id="nm-${index}" value="${item.name}" style="width:100%"></td>
-                        <td><input type="number" id="prc-${index}" step="0.1" value="${item.price.toFixed(2)}" style="width:60px"></td>
-                        <td>
-                            <button onclick="updateItemDetails(${index})">SAVE</button>
-                            <button onclick="toggleItemVisibility(${index}, true)" style="background:#f00; color:#fff;">X</button>
-                        </td>
-                    </tr>`;
+                    let row = `<tr><td>${item.name}</td><td><input type="number" id="stk-${index}" value="${item.stock}" style="width:50px"></td>
+                    <td><button onclick="updateStock(${index})">SAVE</button></td></tr>`;
+                    if(item.stock > 0) inStock.push(row); else outStock.push(row);
                 }
             });
-            container.innerHTML = html + "</table>";
+            let table = `<h3>STOCK LEVELS</h3><table class="win-table"><tr><th>ITEM</th><th>STOCK</th><th>ACTION</th></tr>` 
+                        + inStock.join('') 
+                        + (outStock.length > 0 ? `<tr style="background:#808080; color:#fff;"><td colspan="3" style="text-align:center; font-weight:bold;">OUT OF STOCK ITEMS</td></tr>` + outStock.map(r => r.replace('<tr>', '<tr style="background:#d4d0c8; opacity:0.6;">')).join('') : '') 
+                        + "</table>";
+            document.getElementById('menuContainer').innerHTML = table;
+        }
+
+        function renderSalesDashboard() {
+            const container = document.getElementById('menuContainer');
+            const stats = calculateDaySales();
+            const now = new Date();
+            
+            let html = `<div class="profile-card" style="background:#fff;">
+                <h2 style="margin:0; color:var(--win-blue);">TODAY'S PERFORMANCE</h2>
+                <p style="font-size:12px;"><b>Date:</b> ${now.toDateString()} | <b>Day:</b> ${now.toLocaleDateString('en-US', {weekday:'long'})} | <b>Total: RM ${stats.total.toFixed(2)}</b></p>
+                <hr>
+                <div class="dashboard-grid">`;
+            
+            for (let item in stats.items) {
+                html += `<div class="stat-card"><b>${item}</b><br><span style="font-size:16px; color:#d00;">${stats.items[item]}</span></div>`;
+            }
+
+            html += `</div></div>
+            <h3>PREVIOUS DAYS SUMMARY</h3>
+            <div style="overflow-x:auto; white-space:nowrap; padding-bottom:10px;">`;
+
+            archivedSales.slice().reverse().forEach((day, idx) => {
+                html += `<div class="history-box" onclick="viewHistoryDetails(${archivedSales.length - 1 - idx})">
+                    <b>${day.date}</b><br>
+                    Total: RM ${day.total.toFixed(2)}<br>
+                    Items: ${Object.keys(day.items).length} types
+                </div>`;
+            });
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function viewHistoryDetails(index) {
+            const day = archivedSales[index];
+            let itemDetails = "";
+            for (let item in day.items) {
+                itemDetails += `• ${item}: ${day.items[item]}\n`;
+            }
+            showWinMsg(`SUMMARY FOR ${day.date}`, `TOTAL SALES: RM ${day.total.toFixed(2)}\n\nITEM BREAKDOWN:\n${itemDetails}`, false);
         }
 
         function updateItemDetails(idx) {
@@ -785,29 +916,16 @@
             const c = document.getElementById('new-cat').value;
             const i = document.getElementById('new-img').value || "undpfm.png";
             const s = parseInt(document.getElementById('new-stock').value) || 0;
-
             if(!n || isNaN(p)) { showWinMsg("ERROR", "Invalid input data."); return; }
             menuData.push({ cat: c, name: n, img: i, price: p, stock: s, hidden: false });
             saveDatabase();
-            showWinMsg("SUCCESS", "Item added to database.");
             renderItemEditor();
         }
 
-        function toggleItemVisibility(idx, hide) {
-            menuData[idx].hidden = hide;
+        function updateStock(idx) {
+            menuData[idx].stock = parseInt(document.getElementById(`stk-${idx}`).value);
             saveDatabase();
-            renderItemEditor();
-        }
-
-        function renderInventory() {
-            let html = `<h3>STOCK LEVELS</h3><table class="win-table"><tr><th>ITEM</th><th>STOCK</th><th>ACTION</th></tr>`;
-            menuData.forEach((item, index) => {
-                if(!item.hidden) {
-                    html += `<tr><td>${item.name}</td><td><input type="number" id="stk-${index}" value="${item.stock}" style="width:50px"></td>
-                    <td><button onclick="updateStock(${index})">SAVE</button></td></tr>`;
-                }
-            });
-            document.getElementById('menuContainer').innerHTML = html + "</table>";
+            renderInventory();
         }
 
         function renderTransactions() {
@@ -824,17 +942,95 @@
             document.getElementById('menuContainer').innerHTML = `
                 <div class="profile-card">
                     <h3>SYSTEM INFO</h3>
-                    <p>OS: UND-PERFORMANCE TERMINAL v3.1</p>
+                    <div style="font-size: 11px; max-height: 250px; overflow-y: auto; background: #fff; padding: 10px; border: 1px solid #808080; margin-bottom: 10px;">
+                        <b>Operating System</b><br>
+                        OS Name: Microsoft Windows XP Professional<br>
+                        Version: 5.1.2600 Service Pack 1 Build 2600<br>
+                        OS Manufacturer: Microsoft Corporation<br>
+                        Activation Status: Activated (Retail License)<br>
+                        System Directory: C:\\WINDOWS\\system32<br><br>
+                        
+                        <b>Processor & Motherboard</b><br>
+                        Processor: Intel Pentium 4 CPU 3.06GHz<br>
+                        Features: Hyper-Threading Technology Enabled<br>
+                        Bus Speed: 800 MHz FSB<br>
+                        BIOS Version/Date: American Megatrends Inc. v3.14, 05/12/2003<br>
+                        SMBIOS Version: 2.3<br>
+                        Hardware Abstraction Layer: Version = "5.1.2600.1106"<br><br>
+
+                        <b>Memory & Storage</b><br>
+                        Total Physical Memory: 1024 MB (PC3200 DDR SDRAM)<br>
+                        Available Physical Memory: 642 MB<br>
+                        Total Virtual Memory: 2.46 GB<br>
+                        Page File Space: 1.50 GB<br>
+                        Hard Drive (C:): Western Digital WD800JB (80GB, 7200 RPM, 8MB Cache)<br>
+                        File System: NTFS<br><br>
+
+                        <b>Display & Multimedia</b><br>
+                        Video Card: NVIDIA GeForce FX 5900 Ultra<br>
+                        Adapter RAM: 256 MB<br>
+                        Driver Version: 45.23<br>
+                        Sound Device: Creative Labs Sound Blaster Audigy 2 ZS<br>
+                        Optical Drive (D:): Sony 52x CD-RW Drive<br>
+                        Optical Drive (E:): Pioneer 4x DVD-R/RW Drive<br><br>
+
+                        <b>Network & Ports</b><br>
+                        Network Card: Realtek RTL8139 Family PCI Fast Ethernet<br>
+                        Connection Type: LAN (Broadband/DSL)<br>
+                        IP Address: 192.168.0.102<br>
+                        Modem: Conexant 56K V.92 PCI Data Fax Modem<br>
+                        USB Version: 2.0 Enhanced Host Controller<br><br>
+
+                        <b>System Status</b><br>
+                        Uptime: 0 Days, 02 Hours, 14 Minutes, 45 Seconds<br>
+                        DirectX Version: DirectX 9.0b (4.09.0000.0902)<br>
+                        Startup Programs: 14 (msconfig)
+                    </div>
                     <hr>
-                    <button class="nav-button" onclick="showWinMsg('INFO', 'Database integrity check: 100% OK')">RUN SYSTEM DIAGNOSTIC</button>
-                    <button class="nav-button" style="background:#f00; color:#fff;" onclick="showWinMsg('WARNING', 'Reset all data?', true, ()=> { localStorage.removeItem('pos_history'); localStorage.removeItem('pos_inventory_db'); location.reload(); })">WIPE SALES HISTORY</button>
+                    <button class="nav-button" onclick="runDiagnostic()">RUN SYSTEM DIAGNOSTIC</button>
+                    <button class="nav-button" style="background:#f00; color:#fff;" onclick="showWinMsg('WARNING', 'Reset all data?', true, ()=> { performFactoryReset(); })">FACTORY RESET SYSTEM</button>
                 </div>`;
         }
 
-        function updateStock(idx) {
-            menuData[idx].stock = parseInt(document.getElementById(`stk-${idx}`).value);
+        function runDiagnostic() {
+            showWinMsg("DIAGNOSTIC.EXE", "Initializing hardware scan...", false);
+            const modalText = document.getElementById('modalText');
+            const btnContainer = document.getElementById('modalButtons');
+            btnContainer.innerHTML = ''; // Hide OK button during scan
+
+            let progress = 0;
+            const progressHTML = `<div class="progress-container" id="prog-bar"></div>`;
+            modalText.innerHTML = "Performing integrity check... Please wait.\n" + progressHTML;
+            
+            const bar = document.getElementById('prog-bar');
+            const interval = setInterval(() => {
+                if (progress < 10) {
+                    const seg = document.createElement('div');
+                    seg.className = 'progress-segment';
+                    bar.appendChild(seg);
+                    progress++;
+                } else {
+                    clearInterval(interval);
+                    modalText.innerHTML = "DIAGNOSTIC COMPLETE\n\nDatabase integrity check: 100% OK\nAll hardware components responding.";
+                    const ok = document.createElement('button'); 
+                    ok.className='nav-button'; ok.innerText="OK"; 
+                    ok.onclick=()=>document.getElementById('customModal').style.display='none';
+                    btnContainer.appendChild(ok);
+                }
+            }, 500); // 10 bars over 5 seconds (500ms per bar)
+        }
+
+        function performFactoryReset() {
+            const currentUser = localStorage.getItem("loggedInUser");
+            localStorage.clear();
+            if(currentUser) localStorage.setItem("loggedInUser", currentUser);
+            menuData = [...defaultMenuData];
+            cart = [];
+            transactionHistory = [];
+            archivedSales = [];
             saveDatabase();
-            showWinMsg("SUCCESS", "Stock updated.");
+            initMenu();
+            showWinMsg("SYSTEM RESET", "Local database has been wiped. Returning to main terminal.");
         }
 
         function handleItemClick(item) {
@@ -844,8 +1040,7 @@
                 document.getElementById('drinkModalImg').src = item.img;
                 document.getElementById('drinkModal').style.display = 'flex';
             } else {
-                let p = item.price;
-                let n = item.name;
+                let p = item.price; let n = item.name;
                 if (item.cat === "DRINKS" && selectedServiceStr === "TAKE AWAY") { p += 0.5; n += " (T/A)"; }
                 addToCart(n, p, item);
             }
@@ -918,18 +1113,9 @@
             btnContainer.innerHTML = '';
             
             if (restrictionMode) {
-                const closeBtn = document.createElement('button'); 
-                closeBtn.className='nav-button'; closeBtn.innerText="CLOSE"; 
-                closeBtn.style.textAlign = "center";
+                const closeBtn = document.createElement('button'); closeBtn.className='nav-button'; closeBtn.innerText="CLOSE"; 
                 closeBtn.onclick=()=> { modal.style.display='none'; };
-                
-                const contactBtn = document.createElement('button');
-                contactBtn.className='nav-button'; contactBtn.innerText="CONTACT SUPPORT";
-                contactBtn.style.textAlign = "center";
-                contactBtn.onclick=()=> { location.href='contact.html'; };
-                
                 btnContainer.appendChild(closeBtn);
-                btnContainer.appendChild(contactBtn);
             } else if (confirmMode) {
                 const y = document.createElement('button'); y.className='nav-button'; y.innerText="YES"; y.onclick=()=>{modal.style.display='none'; onConfirm();};
                 const n = document.createElement('button'); n.className='nav-button'; n.innerText="NO"; n.onclick=()=>modal.style.display='none';
@@ -942,7 +1128,12 @@
         }
 
         function closeDrinkModal() { document.getElementById('drinkModal').style.display = 'none'; pendingItem = null; }
-        function updateClock() { document.getElementById('top-clock').innerText = new Date().toLocaleTimeString(); setTimeout(updateClock, 1000); }
+        function updateClock() { 
+            const now = new Date();
+            document.getElementById('top-clock').innerText = now.toLocaleTimeString(); 
+            document.getElementById('status-date').innerText = "DATE: " + now.toLocaleDateString();
+            setTimeout(updateClock, 1000); 
+        }
         
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.search-container')) {
