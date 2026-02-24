@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>C:\WINDOWS\system32\reboot.exe</title>
+    <style>
+        :root {
+            --win-grey: #d4d0c8;
+            --win-blue: #000080;
+            --win-border-light: #ffffff;
+            --win-border-dark: #808080;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: "Consolas", "Lucida Console", "Courier New", monospace;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            /* HIDE CURSOR */
+            cursor: none; 
+        }
+
+        /* Command Prompt Scrolling Area */
+        #cmd-terminal {
+            flex: 1;
+            padding: 15px;
+            font-size: 14px;
+            overflow-y: hidden;
+            white-space: pre-wrap;
+            word-break: break-all;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; 
+        }
+
+        /* Windows Pop-up Style */
+        .win-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--win-grey);
+            border: 2px solid;
+            border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light);
+            width: 380px;
+            z-index: 1000;
+            display: none;
+            padding: 2px;
+            color: #000;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.8);
+        }
+
+        .title-bar {
+            background-color: var(--win-blue);
+            color: white;
+            padding: 3px 10px;
+            font-weight: bold;
+            font-size: 12px;
+            font-family: "Tahoma", "Arial", sans-serif;
+        }
+
+        .modal-body {
+            padding: 25px;
+            text-align: center;
+            font-family: "Tahoma", "Arial", sans-serif;
+            font-size: 13px;
+        }
+
+        /* Loading Screen UI - Black and White */
+        #boot-ui {
+            display: none;
+            position: fixed;
+            bottom: 15%;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+            background: #000;
+            padding: 20px 0;
+        }
+
+        .progress-border {
+            width: 450px;
+            height: 20px;
+            background: #000;
+            border: 1px solid #fff;
+            padding: 4px;
+            display: flex;
+        }
+
+        .progress-segment {
+            flex: 1;
+            height: 100%;
+            background: #fff;
+            margin-right: 2px;
+            display: none;
+        }
+
+        .status-text {
+            color: #fff;
+            margin-top: 15px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div id="cmd-terminal"></div>
+
+    <div id="startModal" class="win-modal">
+        <div class="title-bar">System Message</div>
+        <div class="modal-body">
+            A system reboot has been requested.<br>
+            Please wait while the environment is prepared.<br><br>
+            Initializing Sector Scan...
+        </div>
+    </div>
+
+    <div id="endModal" class="win-modal">
+        <div class="title-bar">Reboot Sequence Complete</div>
+        <div class="modal-body">
+            The system has been successfully reset.<br><br>
+            Redirecting to main login...
+        </div>
+    </div>
+
+    <div id="boot-ui">
+        <div class="progress-border" id="progress-bar"></div>
+        <div class="status-text" id="status-msg">Pre-loading kernel...</div>
+    </div>
+
+    <script>
+        // 1. BLOCK REFRESH AND BROWSER NAVIGATION
+        window.onbeforeunload = function() { return "System Reboot in progress. Do not refresh."; };
+
+        document.addEventListener('keydown', function(e) {
+            // Block F5, Ctrl+R, Ctrl+Shift+R
+            if (e.key === "F5" || (e.ctrlKey && e.key === "r") || (e.ctrlKey && e.shiftKey && e.key === "R")) {
+                e.preventDefault();
+                console.log("Refresh Blocked.");
+            }
+        });
+
+        const terminal = document.getElementById('cmd-terminal');
+        const startModal = document.getElementById('startModal');
+        const endModal = document.getElementById('endModal');
+        const bootUi = document.getElementById('boot-ui');
+        const statusMsg = document.getElementById('status-msg');
+
+        const sysPrefixes = [
+            "C:\\WINDOWS\\SYSTEM32\\",
+            "KERNEL_BASE::0x",
+            "IRQ_LNK::",
+            "MEM_ADDR_AT_",
+            "DRV_MOUNT\\",
+            "SYS_LOG\\",
+            "\\DEV\\DISK0\\",
+            "AUTH_NODE_",
+            "I/O_PORT_",
+            "C:\\PROGRA~1\\"
+        ];
+
+        const cmdData = [
+            "Initializing...",
+            "Checking drive integrity",
+            "Reading boot sectors",
+            "02/24/2026  04:45 PM    <DIR>",
+            "Verifying hardware configuration",
+            "NTFS File System detected",
+            "Repairing bad sectors at 0x88AF21",
+            "Loading registry hive...",
+            "Packet transmitted successfully",
+            "Memory dump successful",
+            "Establishing connection to PNG-NODE",
+            "Flushing CPU cache...",
+            "Warning: sector 0x112 delayed",
+            "Mapping virtual memory...",
+            "Port 8080 listening",
+            "Checking dependencies...",
+            "Service Pack 2 Found",
+            "OK"
+        ];
+
+        // 2. VARIABLE TYPING ANIMATION (40 Seconds)
+        function startScrolling() {
+            let startTime = Date.now();
+            const duration = 40000; 
+
+            const scrollInterval = setInterval(() => {
+                if (Date.now() - startTime >= duration) {
+                    clearInterval(scrollInterval);
+                    showInitialWarning();
+                    return;
+                }
+
+                const line = document.createElement('div');
+                const randomPrefix = sysPrefixes[Math.floor(Math.random() * sysPrefixes.length)];
+                const randomContent = cmdData[Math.floor(Math.random() * cmdData.length)];
+                
+                // Varied hex lengths for better visual variety
+                const hexLen = Math.floor(Math.random() * 12) + 4;
+                const randomHex = Math.random().toString(16).substr(2, hexLen).toUpperCase();
+                
+                line.innerText = `${randomPrefix}${randomHex} > ${randomContent}`;
+                terminal.appendChild(line);
+
+                if (terminal.childNodes.length > 40) {
+                    terminal.removeChild(terminal.firstChild);
+                }
+            }, 60); 
+        }
+
+        // 3. SEVEN SECOND POP-UP
+        function showInitialWarning() {
+            startModal.style.display = 'block';
+            setTimeout(() => {
+                startModal.style.display = 'none';
+                startLoading();
+            }, 7000);
+        }
+
+        // 4. LONG B&W LOADING (100 Segments)
+        function startLoading() {
+            bootUi.style.display = 'flex';
+            const bar = document.getElementById('progress-bar');
+            const totalSegments = 100; 
+            
+            for (let i = 0; i < totalSegments; i++) {
+                const seg = document.createElement('div');
+                seg.className = 'progress-segment';
+                bar.appendChild(seg);
+            }
+
+            let current = 0;
+            const segments = document.querySelectorAll('.progress-segment');
+            const logSteps = ["Reading Data", "Configuring System", "Loading GUI", "Setting Environment", "Finalizing"];
+
+            function tick() {
+                if (current < totalSegments) {
+                    segments[current].style.display = 'block';
+                    
+                    if (current % 20 === 0) {
+                        statusMsg.innerText = logSteps[current / 20] + "...";
+                    }
+
+                    current++;
+                    
+                    // Slows down significantly at the end
+                    let delay = 350; 
+                    if (current > 80) delay = 900;
+                    if (current > 95) delay = 3000; 
+
+                    setTimeout(tick, delay);
+                } else {
+                    finishReboot();
+                }
+            }
+            tick();
+        }
+
+        // 5. FINAL POP-UP -> INDEX.HTML
+        function finishReboot() {
+            bootUi.style.display = 'none';
+            endModal.style.display = 'block';
+            
+            setTimeout(() => {
+                // Remove the refresh block before redirecting
+                window.onbeforeunload = null; 
+                window.location.href = "index.html";
+            }, 5000);
+        }
+
+        window.onload = startScrolling;
+    </script>
+</body>
+</html>

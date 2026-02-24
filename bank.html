@@ -130,7 +130,7 @@
             padding: 2px;
             width: 450px;
             box-shadow: 4px 4px 0px #000;
-            max-height: 90vh; /* Prevents modal itself from leaving screen */
+            max-height: 90vh;
             display: flex;
             flex-direction: column;
         }
@@ -152,7 +152,6 @@
             cursor: pointer;
         }
 
-        /* Standardized Invoice Body with Scrolling */
         .invoice-body {
             background: #fff;
             color: #000;
@@ -161,7 +160,7 @@
             font-size: 13px;
             border: 1px solid #000;
             line-height: 1.6;
-            max-height: 350px; /* Fixed height to enable scrolling for long orders */
+            max-height: 400px;
             overflow-y: auto;
         }
 
@@ -294,33 +293,87 @@
             const now = new Date();
             const cart = JSON.parse(localStorage.getItem("currentOrder")) || [];
             const user = JSON.parse(localStorage.getItem("loggedInUser")) || {name: "Staff"};
-            const finalAmt = (baseTotal + fee).toFixed(2);
+            const serviceType = localStorage.getItem("serviceType") || "DINE IN";
+            
+            const rawTotal = baseTotal + fee;
+            const finalRoundedAmt = (Math.round(rawTotal * 20) / 20).toFixed(2);
+            const roundingAdjustment = (finalRoundedAmt - rawTotal).toFixed(2);
 
-            let itemsHtml = cart.map(item => 
-                `<div class="inv-row"><span>${item.name}</span><span>RM${parseFloat(item.price).toFixed(2)}</span></div>`
-            ).join('');
+            const groupedItems = {};
+            cart.forEach(item => {
+                if (groupedItems[item.name]) {
+                    groupedItems[item.name].qty++;
+                    groupedItems[item.name].total += parseFloat(item.price);
+                } else {
+                    groupedItems[item.name] = { 
+                        qty: 1, 
+                        price: parseFloat(item.price), 
+                        total: parseFloat(item.price) 
+                    };
+                }
+            });
+
+            let itemsHtml = Object.keys(groupedItems).map(name => `
+                <div class="inv-row">
+                    <span>${name} ${groupedItems[name].qty > 1 ? 'x' + groupedItems[name].qty : ''}</span>
+                    <span>RM ${groupedItems[name].total.toFixed(2)}</span>
+                </div>
+            `).join('');
 
             document.getElementById('invoice-content').innerHTML = `
-                <div style="text-align:center; margin-bottom:15px;">
-                    <strong style="font-size:18px;">UNDEFEATED FIRE CORNER</strong><br>
-                    Digital Payment Receipt
+                <div style="text-align:center; border-bottom: 2px solid #000; padding-bottom:10px; margin-bottom:15px;">
+                    <strong style="font-size:20px; letter-spacing:1px;">UNDEFEATED FIRE CORNER</strong><br>
+                    <span style="font-size:10px; line-height:1.2; display:block; margin-top:5px;">
+                        No. 5, Persiaran Batu Kawan, Penang Science Park,<br>
+                        14110 Simpang Ampat, Pulau Pinang.
+                    </span>
+                    <span style="font-size:11px; font-weight:bold; margin-top:5px; display:block;">OFFICIAL DIGITAL E-INVOICE</span>
+                    <span style="font-size:10px; color:#666;">SSM: 202303123456 (AS0456789-X)</span>
                 </div>
-                <div class="inv-row"><strong>Method:</strong> <span>${selectedMethod}</span></div>
-                <div class="inv-row"><strong>Date:</strong> <span>${now.toLocaleDateString()}</span></div>
-                <div class="inv-row"><strong>Time:</strong> <span>${now.toLocaleTimeString()}</span></div>
-                <div class="inv-row"><strong>Ref No:</strong> <span>#UND-${Math.floor(Math.random()*90000)}</span></div>
-                <div class="inv-row"><strong>Cashier:</strong> <span>${user.name}</span></div>
-                <hr style="border:0; border-top:1px dashed #ccc; margin:10px 0;">
-                <div class="invoice-items-scroll">
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:11px; margin-bottom:15px; background:#f9f9f9; padding:10px; border:1px solid #eee;">
+                    <div>
+                        <strong>BILL TO:</strong><br>Valued Customer<br>Type: ${serviceType}
+                    </div>
+                    <div style="text-align:right;">
+                        <strong>INVOICE DETAILS:</strong><br>
+                        Ref: #UND-${Math.floor(Math.random()*90000)}<br>
+                        Date: ${now.toLocaleDateString()}<br>
+                        Time: ${now.toLocaleTimeString()}
+                    </div>
+                </div>
+
+                <div style="border-bottom: 1px solid #000; padding-bottom:5px; margin-bottom:5px; font-weight:bold; display:flex; justify-content:space-between; font-size:11px;">
+                    <span>ITEM DESCRIPTION</span><span>TOTAL (RM)</span>
+                </div>
+                
+                <div style="min-height:80px;">
                     ${itemsHtml}
                 </div>
-                <div class="inv-row inv-bold"><span>Subtotal</span><span>RM ${baseTotal.toFixed(2)}</span></div>
-                <div class="inv-row"><span>Svc Fee</span><span>RM ${fee.toFixed(2)}</span></div>
-                <div class="inv-row" style="font-size:16px; font-weight:bold; color:var(--win-blue);">
-                    <span>TOTAL PAID</span><span>RM ${finalAmt}</span>
+
+                <div style="margin-top:20px; border-top: 1px solid #eee; padding-top:10px;">
+                    <div class="inv-row"><span>Subtotal</span><span>RM ${baseTotal.toFixed(2)}</span></div>
+                    <div class="inv-row"><span>Digital Processing Fee</span><span>RM ${fee.toFixed(2)}</span></div>
+                    <div class="inv-row" style="color:#666; font-style:italic;"><span>Rounding Adjustment</span><span>RM ${roundingAdjustment}</span></div>
+                    <div class="inv-row inv-bold" style="font-size:18px; border-top:2px solid #000; color:var(--win-blue); padding-top:10px;">
+                        <span>TOTAL PAID</span><span>RM ${finalRoundedAmt}</span>
+                    </div>
                 </div>
-                <div style="text-align:center; margin-top:15px; font-size:11px; color:#666;">
-                    Thank you for your digital payment!
+
+                <div style="margin-top:15px; font-size:10px; color:#555; background:#fffbe6; padding:5px; border:1px solid #ffe58f; text-align:center;">
+                    * Note: Total amount has been rounded to the nearest RM 0.05
+                </div>
+
+                <div style="margin-top:15px; padding:10px; background:#eef; border-left:4px solid var(--win-blue); font-size:11px;">
+                    <strong>PAYMENT VERIFICATION:</strong><br>
+                    Method: ${selectedMethod}<br>
+                    Status: TRANSACTION SUCCESSFUL<br>
+                    Cashier: ${user.name}
+                </div>
+
+                <div style="text-align:center; margin-top:20px; font-size:10px; color:#888;">
+                    This receipt is computer-generated for your digital record.<br>
+                    <strong>THANK YOU! PLEASE COME AGAIN.</strong>
                 </div>
             `;
             document.getElementById('invoice-window').style.display = 'flex';
@@ -328,15 +381,31 @@
 
         function finalizeAll() {
             const history = JSON.parse(localStorage.getItem("pos_history")) || [];
-            const finalAmt = (baseTotal + fee).toFixed(2);
+            const cart = JSON.parse(localStorage.getItem("currentOrder")) || [];
+            const serviceType = localStorage.getItem("serviceType") || "DINE IN";
             
-            history.push({
-                time: new Date().toLocaleString(),
-                type: "E-PAY: " + selectedMethod,
-                amount: finalAmt
-            });
+            const rawTotal = baseTotal + fee;
+            const finalRoundedAmt = (Math.round(rawTotal * 20) / 20).toFixed(2);
+            const orderTime = new Date().toLocaleString();
+            
+            const orderData = {
+                time: orderTime,
+                type: serviceType,
+                paymentMethod: "E-PAY: " + selectedMethod,
+                amount: finalRoundedAmt,
+                cart: cart 
+            };
+
+            // 1. Save to General History
+            history.push(orderData);
             localStorage.setItem("pos_history", JSON.stringify(history));
 
+            // 2. SEND TO KITCHEN (Push to a dedicated kitchen queue)
+            const kitchenOrders = JSON.parse(localStorage.getItem("kitchen_orders")) || [];
+            kitchenOrders.push(orderData);
+            localStorage.setItem("kitchen_orders", JSON.stringify(kitchenOrders));
+
+            // 3. Clear current workspace
             document.getElementById('invoice-window').style.display = 'none';
             localStorage.removeItem("currentOrder");
             localStorage.setItem("totalAmount", "0.00");

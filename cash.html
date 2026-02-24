@@ -167,7 +167,7 @@
         .invoice-details-stacked { margin-bottom: 20px; font-size: 12px; border-left: 3px solid #008080; padding-left: 10px; }
         .item-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         .item-table th { border-bottom: 1px solid #ddd; padding: 8px; text-align: left; background: #f2f2f2; }
-        .item-table td { padding: 8px; border-bottom: 1 solid #eee; }
+        .item-table td { padding: 8px; border-bottom: 1px solid #eee; }
         .total-section { float: right; width: 200px; }
         .total-row { display: flex; justify-content: space-between; padding: 5px 0; }
         .grand-total { font-weight: bold; border-top: 2px solid #008080; margin-top: 10px; padding-top: 10px; font-size: 18px; color: #008080; }
@@ -398,16 +398,32 @@
         }
 
         function finalizeOrder() {
+            const cart = JSON.parse(localStorage.getItem("currentOrder")) || [];
+            const serviceType = localStorage.getItem("serviceType") || "DINE IN";
+
+            // --- SYNC TO KITCHEN START ---
+            let kitchenOrders = JSON.parse(localStorage.getItem("kitchen_orders")) || [];
+            kitchenOrders.push({
+                orderId: "C-" + Date.now(),
+                time: new Date().toLocaleTimeString(),
+                items: cart,
+                type: serviceType,
+                status: "PENDING"
+            });
+            localStorage.setItem("kitchen_orders", JSON.stringify(kitchenOrders));
+            // --- SYNC TO KITCHEN END ---
+
             const history = JSON.parse(localStorage.getItem("pos_history")) || [];
             const now = new Date();
             const newRecord = {
                 time: now.toLocaleString(),
-                type: localStorage.getItem("serviceType") || "DINE IN",
+                type: serviceType,
                 amount: totalDue.toFixed(2),
-                cart: JSON.parse(localStorage.getItem("currentOrder")) || []
+                cart: cart
             };
             history.push(newRecord);
             localStorage.setItem("pos_history", JSON.stringify(history));
+            
             localStorage.removeItem("currentOrder");
             localStorage.setItem("totalAmount", "0.00");
             window.location.href = 'menu.html';

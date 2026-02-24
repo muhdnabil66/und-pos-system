@@ -213,7 +213,6 @@
             flex-shrink: 0;
         }
 
-        /* Responsive Cart hide on small screens if menu is open */
         @media (max-width: 768px) {
             #order-summary { width: 200px; }
         }
@@ -242,7 +241,36 @@
             padding: 10px;
             font-family: "Courier New", monospace;
             font-size: 20px;
-            font-weight: bold; text-align: right; border: 2px solid var(--win-border-dark); } .modal-box { background: var(--win-grey); border: 2px solid; border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light); width: 300px; padding: 2px; } .status-bar { background: var(--win-grey); border-top: 2px solid var(--win-border-dark); padding: 3px 10px; font-size: 11px; display: flex; justify-content: space-between; flex-shrink: 0; } .restricted-locked { filter: grayscale(1); } .logout-unlocked { pointer-events: auto !important; filter: none !important; } .sub-filter-btn { background: var(--win-grey); border: 2px solid; border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light); padding: 2px 8px; margin-right: 4px; cursor: pointer; font-size: 11px; font-weight: bold; } .search-container { position: relative; margin-left: 10px; display: inline-block; } #searchInput { border: 2px solid; border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark); padding: 3px; width: 200px; font-family: "MS Sans Serif"; } #searchDropdown { position: absolute; top: 100%; left: 0; width: 250px; background: #fff; border: 1px solid #000; z-index: 999; display: none; max-height: 300px; overflow-y: auto; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); } .search-item { display: flex; align-items: center; padding: 5px; cursor: pointer; border-bottom: 1px solid #eee; } .search-item:hover { background: #000080; color: #fff; } .search-item img { width: 30px; height: 30px; margin-right: 10px; border: 1px solid #ccc; background: #fff; } .best-seller-tag { position: absolute; top: -5px; right: -5px; background: red; color: white; font-size: 9px; padding: 2px 4px; border: 1px solid black; z-index: 5; } .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 20px; } .stat-card { background: #fff; border: 1px solid #808080; padding: 5px; text-align: center; box-shadow: 1px 1px 0 #000; font-size: 10px; } .stat-card b { display: block; height: 2.4em; overflow: hidden; } .stat-card span { font-size: 14px !important; } .history-box { width: 120px; height: 80px; background: #fff; border: 2px solid var(--win-border-dark); display: inline-block; margin: 5px; padding: 5px; cursor: pointer; font-size: 10px; vertical-align: top; } .history-box:hover { border-color: var(--win-blue); } #modalButtons { display: flex; gap: 10px; justify-content: center; padding-bottom: 10px; flex-wrap: wrap; } #modalButtons .nav-button { width: auto; min-width: 80px; margin: 0; padding: 5px 15px; } .progress-container { border: 2px solid; border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark); background: #fff; height: 25px; display: flex; padding: 2px; margin: 10px 0; } .progress-segment { background: var(--win-blue); width: 10%; height: 100%; margin-right: 2px; } </style>
+            font-weight: bold; text-align: right; border: 2px solid var(--win-border-dark); 
+        } 
+        
+        .modal-box { background: var(--win-grey); border: 2px solid; border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light); width: 300px; padding: 2px; } 
+        
+        .status-bar { background: var(--win-grey); border-top: 2px solid var(--win-border-dark); padding: 3px 10px; font-size: 11px; display: flex; justify-content: space-between; flex-shrink: 0; } 
+        
+        .restricted-locked { filter: grayscale(1); } 
+        .logout-unlocked { pointer-events: auto !important; filter: none !important; } 
+        
+        .sub-filter-btn { background: var(--win-grey); border: 2px solid; border-color: var(--win-border-light) var(--win-border-dark) var(--win-border-dark) var(--win-border-light); padding: 2px 8px; margin-right: 4px; cursor: pointer; font-size: 11px; font-weight: bold; } 
+        
+        .search-container { position: relative; margin-left: 10px; display: inline-block; } 
+        #searchInput { border: 2px solid; border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark); padding: 3px; width: 200px; font-family: "MS Sans Serif"; } 
+        #searchDropdown { position: absolute; top: 100%; left: 0; width: 250px; background: #fff; border: 1px solid #000; z-index: 999; display: none; max-height: 300px; overflow-y: auto; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); } 
+        .search-item { display: flex; align-items: center; padding: 5px; cursor: pointer; border-bottom: 1px solid #eee; } 
+        .search-item:hover { background: #000080; color: #fff; } 
+        .search-item img { width: 30px; height: 30px; margin-right: 10px; border: 1px solid #ccc; background: #fff; } 
+        .best-seller-tag { position: absolute; top: -5px; right: -5px; background: red; color: white; font-size: 9px; padding: 2px 4px; border: 1px solid black; z-index: 5; } 
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 20px; } 
+        .stat-card { background: #fff; border: 1px solid #808080; padding: 5px; text-align: center; box-shadow: 1px 1px 0 #000; font-size: 10px; } 
+        .stat-card b { display: block; height: 2.4em; overflow: hidden; } 
+        .stat-card span { font-size: 14px !important; } 
+        .history-box { width: 120px; height: 80px; background: #fff; border: 2px solid var(--win-border-dark); display: inline-block; margin: 5px; padding: 5px; cursor: pointer; font-size: 10px; vertical-align: top; } 
+        .history-box:hover { border-color: var(--win-blue); } 
+        #modalButtons { display: flex; gap: 10px; justify-content: center; padding-bottom: 10px; flex-wrap: wrap; } 
+        #modalButtons .nav-button { width: auto; min-width: 80px; margin: 0; padding: 5px 15px; } 
+        .progress-container { border: 2px solid; border-color: var(--win-border-dark) var(--win-border-light) var(--win-border-light) var(--win-border-dark); background: #fff; height: 25px; display: flex; padding: 2px; margin: 10px 0; } 
+        .progress-segment { background: var(--win-blue); width: 10%; height: 100%; margin-right: 2px; } 
+    </style>
 </head>
 <body onload="initMenu()">
 
@@ -258,15 +286,16 @@
         </div>
     </div>
 
-    <div id="serviceOverlay">
-        <div class="modal-box" style="width: 400px; max-width: 90%;">
+    <div id="serviceOverlay" style="display: flex;">
+        <div class="modal-box" style="width: 450px; max-width: 90%;">
             <div class="title-bar"><span>SYSTEM_INITIALIZATION.EXE</span></div>
             <div style="padding: 20px; text-align: center;">
-                <h2 style="margin-top: 0;">SELECT SERVICE TYPE</h2>
-                <div style="display: flex; gap: 15px;">
-                    <button class="nav-button" style="flex: 1; height: 100px;" onclick="selectService('DINE IN')">🍽️<br>DINE IN</button>
-                    <button class="nav-button" style="flex: 1; height: 100px;" onclick="selectService('TAKE AWAY')">🥡<br>TAKE AWAY</button>
+                <h2 style="margin-top: 0; font-size: 18px;">SELECT SERVICE TYPE</h2>
+                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                    <button class="nav-button" style="flex: 1; height: 120px; font-size: 14px;" onclick="selectService('DINE IN')">🍽️<br>DINE IN</button>
+                    <button class="nav-button" style="flex: 1; height: 120px; font-size: 14px;" onclick="selectService('TAKE AWAY')">🥡<br>TAKE AWAY</button>
                 </div>
+                <button class="nav-button" style="background: #808080; color: white;" onclick="selectService('NOT SET')">CLOSE (NOT SET)</button>
             </div>
         </div>
     </div>
@@ -282,12 +311,12 @@
             <div id="service-type" style="margin-top: 5px; color: #d00; font-weight: bold;">TYPE: NOT SET</div>
         </div>
         <div id="nav-container">
-            <button class="nav-button" onclick="switchView('MENU')">🛒 NEW ORDER</button>
-            <button class="nav-button" onclick="switchView('TRANSACTIONS')">📂 TRANSACTIONS</button>
-            <button class="nav-button" onclick="switchView('INVENTORY')">📊 INVENTORY</button>
-            <button class="nav-button" onclick="switchView('ITEMS')">✏️ EDIT ITEMS</button>
-            <button class="nav-button" onclick="switchView('SALES')">📈 SALES REPORT</button>
-            <button class="nav-button" onclick="switchView('SETTINGS')">⚙️ SETTINGS</button>
+            <button class="nav-button" onclick="switchView('MENU')"> NEW ORDER</button>
+            <button class="nav-button" onclick="switchView('TRANSACTIONS')"> TRANSACTIONS</button>
+            <button class="nav-button" onclick="switchView('INVENTORY')"> INVENTORY</button>
+            <button class="nav-button" onclick="switchView('ITEMS')"> EDIT ITEMS</button>
+            <button class="nav-button" onclick="switchView('SALES')"> SALES REPORT</button>
+            <button class="nav-button" onclick="switchView('SETTINGS')"> SETTINGS</button>
         </div>
         <button class="nav-button logout-unlocked" style="margin-top: auto; background: #c00; color: white;" onclick="triggerLogout()">🔓 LOGOUT</button>
     </div>
@@ -303,22 +332,26 @@
             </div>
             
             <div id="toolbar" style="padding: 10px; background: var(--win-grey); border-bottom: 1px solid #808080; font-size: 12px;">
-                <div style="display: flex; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 10px;">
-                    <div>
-                        <b>Category:</b> 
-                        <select id="categorySelect" onchange="renderMenu()" style="margin-left:5px;">
-                            <option value="ALL">ALL PRODUCTS</option>
-                            <option value="FOOD">FOOD</option>
-                            <option value="DRINKS">DRINKS</option>
-                            <option value="OTHER">OTHER</option>
-                        </select>
-                    </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <div>
+                            <b>Category:</b> 
+                            <select id="categorySelect" onchange="renderMenu()" style="margin-left:5px;">
+                                <option value="ALL">ALL PRODUCTS</option>
+                                <option value="FOOD">FOOD</option>
+                                <option value="DRINKS">DRINKS</option>
+                                <option value="OTHER">OTHER</option>
+                            </select>
+                        </div>
 
-                    <div class="search-container">
-                        <b>Search:</b>
-                        <input type="text" id="searchInput" placeholder="Find item..." oninput="handleSearch()">
-                        <div id="searchDropdown"></div>
+                        <div class="search-container">
+                            <b>Search:</b>
+                            <input type="text" id="searchInput" placeholder="Find item..." oninput="handleSearch()">
+                            <div id="searchDropdown"></div>
+                        </div>
                     </div>
+                    
+                    <button class="nav-button" style="width: auto; margin: 0; padding: 2px 10px; background: #d4d0c8;" onclick="triggerReboot()">🔄 REBOOT</button>
                 </div>
                 <div id="subFilters" style="overflow-x: auto; white-space: nowrap; padding-bottom: 5px;">
                     <button class="sub-filter-btn active" onclick="setSubFilter('ALL', this)">ALL</button>
@@ -450,7 +483,7 @@
             { cat: "DRINKS", name: "Nescafe", img: "nescafe.png", price: 3.50, hasTemp: true, stock: 100, hidden: false },
             { cat: "DRINKS", name: "Neslo", img: "neslo.png", price: 4.00, hasTemp: true, stock: 100, hidden: false },
             { cat: "DRINKS", name: "Barli", img: "barli.png", price: 3.00, hasTemp: true, stock: 100, hidden: false },
-            { cat: "DRINKS", name: "Teh Tarik", img: "teh_tarik.png", price: 2.00, hasTemp: false, stock: 100, hidden: false },
+            { cat: "DRINKS", name: "Teh Tarik", img: "teh_tari.png", price: 2.00, hasTemp: false, stock: 100, hidden: false },
             { cat: "DRINKS", name: "Matcha", img: "matcha.png", price: 6.00, hasTemp: false, stock: 100, hidden: false },
             { cat: "DRINKS", name: "Ais Kepal Milo", img: "ais_kepal_milo.png", price: 5.00, hasTemp: false, stock: 100, hidden: false },
             { cat: "DRINKS", name: "ABC", img: "abc.png", price: 6.00, hasTemp: false, stock: 100, hidden: false },
@@ -468,7 +501,7 @@
         let menuData = JSON.parse(localStorage.getItem("pos_inventory_db")) || defaultMenuData;
         let cart = [];
         let pendingItem = null;
-        let selectedServiceStr = "";
+        let selectedServiceStr = "NOT SET";
         let transactionHistory = JSON.parse(localStorage.getItem("pos_history")) || [];
         let archivedSales = JSON.parse(localStorage.getItem("pos_archived_sales")) || [];
         let activeSubFilter = "ALL";
@@ -492,13 +525,19 @@
             document.getElementById('prof-code').innerHTML = `<b>CODE:</b> ${userProfile.code}`;
             document.getElementById('prof-shift').innerHTML = `<b>SHIFT:</b> ${userProfile.shift}`;
             document.getElementById('status-user').innerText = `USER: ${userProfile.loginId.toUpperCase()}`;
-
+           
             checkMidnightReset();
 
-            if (userProfile.loginId !== "manager01") {
+            if (userProfile.loginId === "demo") {
+                isSystemRestricted = true;
+                applyRestrictionUI();
+                triggerRestrictedPopup("DEMO MODE: Terminal is currently locked for this account.");
+            } else if (userProfile.loginId !== "manager01") {
                 checkShiftLock(userProfile.shift);
             } else {
-                document.getElementById('serviceOverlay').style.display = 'flex';
+                if(selectedServiceStr === "NOT SET") {
+                    document.getElementById('serviceOverlay').style.display = 'flex';
+                }
             }
 
             switchView('MENU');
@@ -566,17 +605,15 @@
             document.getElementById('nav-container').classList.add('restricted-locked');
             const allNavBtns = document.querySelectorAll('.nav-button:not(.logout-unlocked)');
             allNavBtns.forEach(btn => {
-                const oldCall = btn.onclick;
                 btn.onclick = (e) => {
                     if(isSystemRestricted) { triggerRestrictedPopup(); return; }
-                    if(oldCall) oldCall.call(btn, e);
                 };
             });
             document.getElementById('menuContainer').onclick = () => { if(isSystemRestricted) triggerRestrictedPopup(); };
         }
 
-        function triggerRestrictedPopup() {
-            const warningText = `ACCESS DENIED: OUTSIDE AUTHORIZED SHIFT HOURS\n\nEmployee: ${userProfile.name}\nShift: ${userProfile.shift}\n\nTerminal Locked.`;
+        function triggerRestrictedPopup(customMsg) {
+            const warningText = customMsg || `ACCESS DENIED: OUTSIDE AUTHORIZED SHIFT HOURS\n\nEmployee: ${userProfile.name}\nShift: ${userProfile.shift}\n\nTerminal Locked.`;
             showWinMsg("ACCESS_RESTRICTED.EXE", warningText, false, null, true);
         }
 
@@ -721,7 +758,10 @@
                     hasHidden = true;
                     hiddenItemsHtml += `<tr>
                         <td>${item.name}</td>
-                        <td><button onclick="toggleItemVisibility(${index}, false)" style="background:var(--win-blue); color:#fff;">[+] RECOVER</button></td>
+                        <td>
+                            <button onclick="toggleItemVisibility(${index}, false)" style="background:var(--win-blue); color:#fff;">[+] RECOVER</button>
+                            <button onclick="deleteItemPermanently(${index})" style="background:#000; color:#fff;">[X] DELETE FOREVER</button>
+                        </td>
                     </tr>`;
                 }
             });
@@ -741,6 +781,14 @@
             </div>`;
 
             container.innerHTML = topForm + activeItemsHtml + "</table>" + (hasHidden ? hiddenItemsHtml + "</table>" : "");
+        }
+
+        function deleteItemPermanently(idx) {
+            showWinMsg("PERMANENT DELETE", `Are you sure you want to permanently delete "${menuData[idx].name}"? This cannot be undone.`, true, () => {
+                menuData.splice(idx, 1);
+                saveDatabase();
+                renderItemEditor();
+            });
         }
 
         function toggleItemVisibility(idx, hide) {
@@ -770,9 +818,14 @@
             const container = document.getElementById('menuContainer');
             const stats = calculateDaySales();
             const now = new Date();
+            const dayNames = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+            const currentDay = dayNames[now.getDay()];
+            const currentTime = now.toLocaleTimeString();
+            const currentDate = now.toLocaleDateString();
             
             let html = `<div class="profile-card" style="background:#fff;">
                 <h2 style="margin:0; color:var(--win-blue);">TODAY'S PERFORMANCE</h2>
+                <p style="font-size:12px; color:#555; margin-top:5px;"><b>DATE:</b> ${currentDate} | <b>DAY:</b> ${currentDay} | <b>TIME:</b> ${currentTime}</p>
                 <p style="font-size:12px;"><b>Total: RM ${stats.total.toFixed(2)}</b></p>
                 <hr>
                 <div class="dashboard-grid">`;
@@ -785,13 +838,22 @@
             <h3>PREVIOUS DAYS SUMMARY</h3>
             <div style="overflow-x:auto; white-space:nowrap; padding-bottom:10px;">`;
 
-            archivedSales.slice().reverse().forEach((day, idx) => {
-                html += `<div class="history-box" onclick="viewHistoryDetails(${archivedSales.length - 1 - idx})">
-                    <b>${day.date}</b><br>
-                    Total: RM ${day.total.toFixed(2)}<br>
-                    Items: ${Object.keys(day.items).length} types
+            if (archivedSales.length === 0) {
+                html += `<div class="profile-card" style="display:inline-block; width:100%; text-align:center;">
+                    <p style="font-weight:bold; color:var(--win-border-dark);">NO DATA AVAILABLE IN LOGS</p>
                 </div>`;
-            });
+            } else {
+                archivedSales.slice().reverse().forEach((day, idx) => {
+                    const dObj = new Date(day.date);
+                    const dName = dayNames[dObj.getDay()] || "UNKNOWN";
+                    html += `<div class="history-box" onclick="viewHistoryDetails(archivedSales.length - 1 - idx)">
+                        <b>${day.date}</b><br>
+                        DAY: ${dName}<br>
+                        Total: RM ${day.total.toFixed(2)}<br>
+                        Items: ${Object.keys(day.items).length} types
+                    </div>`;
+                });
+            }
 
             html += `</div>`;
             container.innerHTML = html;
@@ -847,48 +909,7 @@
                 <div class="profile-card">
                     <h3>SYSTEM INFO</h3>
                     <div style="font-size: 11px; max-height: 250px; overflow-y: auto; background: #fff; padding: 10px; border: 1px solid #808080; margin-bottom: 10px;">
-                        <b>Operating System</b><br>
-                        OS Name: Microsoft Windows XP Professional<br>
-                        Version: 5.1.2600 Service Pack 1 Build 2600<br>
-                        OS Manufacturer: Microsoft Corporation<br>
-                        Activation Status: Activated (Retail License)<br>
-                        System Directory: C:\\WINDOWS\\system32<br><br>
-                        
-                        <b>Processor & Motherboard</b><br>
-                        Processor: Intel Pentium 4 CPU 3.06GHz<br>
-                        Features: Hyper-Threading Technology Enabled<br>
-                        Bus Speed: 800 MHz FSB<br>
-                        BIOS Version/Date: American Megatrends Inc. v3.14, 05/12/2003<br>
-                        SMBIOS Version: 2.3<br>
-                        Hardware Abstraction Layer: Version = "5.1.2600.1106"<br><br>
-
-                        <b>Memory & Storage</b><br>
-                        Total Physical Memory: 1024 MB (PC3200 DDR SDRAM)<br>
-                        Available Physical Memory: 642 MB<br>
-                        Total Virtual Memory: 2.46 GB<br>
-                        Page File Space: 1.50 GB<br>
-                        Hard Drive (C:): Western Digital WD800JB (80GB, 7200 RPM, 8MB Cache)<br>
-                        File System: NTFS<br><br>
-
-                        <b>Display & Multimedia</b><br>
-                        Video Card: NVIDIA GeForce FX 5900 Ultra<br>
-                        Adapter RAM: 256 MB<br>
-                        Driver Version: 45.23<br>
-                        Sound Device: Creative Labs Sound Blaster Audigy 2 ZS<br>
-                        Optical Drive (D:): Sony 52x CD-RW Drive<br>
-                        Optical Drive (E:): Pioneer 4x DVD-R/RW Drive<br><br>
-
-                        <b>Network & Ports</b><br>
-                        Network Card: Realtek RTL8139 Family PCI Fast Ethernet<br>
-                        Connection Type: LAN (Broadband/DSL)<br>
-                        IP Address: 192.168.0.102<br>
-                        Modem: Conexant 56K V.92 PCI Data Fax Modem<br>
-                        USB Version: 2.0 Enhanced Host Controller<br><br>
-
-                        <b>System Status</b><br>
-                        Uptime: 0 Days, 02 Hours, 14 Minutes, 45 Seconds<br>
-                        DirectX Version: DirectX 9.0b (4.09.0000.0902)<br>
-                        Startup Programs: 14 (msconfig)
+                        <b>Operating System</b>: Windows XP Legacy Hub
                     </div>
                     <hr>
                     <button class="nav-button" onclick="runDiagnostic()">RUN SYSTEM DIAGNOSTIC</button>
@@ -988,9 +1009,15 @@
         }
 
         function selectService(type) {
-            selectedServiceStr = type;
-            document.getElementById('serviceOverlay').style.display = 'none';
-            document.getElementById('service-type').innerText = `TYPE: ${type}`;
+            if(type === 'DINE IN') {
+                localStorage.setItem("serviceType", "DINE IN");
+                window.location.href = 'table.html';
+            } else {
+                selectedServiceStr = type;
+                document.getElementById('serviceOverlay').style.display = 'none';
+                document.getElementById('service-type').innerText = `TYPE: ${type}`;
+                localStorage.setItem("serviceType", type);
+            }
         }
 
         function proceedToPayment() {
@@ -1006,6 +1033,12 @@
             showWinMsg("LOGOUT", "Exit terminal?", true, () => {
                 localStorage.removeItem("loggedInUser");
                 window.location.href = "index.html";
+            });
+        }
+        
+        function triggerReboot() {
+            showWinMsg("SYSTEM REBOOT", "Are you sure you want to reboot the terminal?\nUnsaved session data may be lost.", true, () => {
+                window.location.href = "reboot.html";
             });
         }
 
@@ -1051,7 +1084,6 @@
             if (!e.target.closest('.search-container')) {
                 document.getElementById('searchDropdown').style.display = 'none';
             }
-            // Sidebar auto-close logic
             const sidebar = document.getElementById('sidebar');
             const toggle = document.getElementById('hamburger-toggle');
             if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !toggle.contains(e.target)) {
