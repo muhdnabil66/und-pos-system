@@ -29,7 +29,9 @@
             font-family: "Courier New", monospace;
         }
 
-        #topRightClock { text-align: right; }
+        #topRightClock {
+            text-align: right;
+        }
 
         /* Bottom Version Info */
         .sys-meta-bottom-right {
@@ -63,6 +65,7 @@
             color: #000;
             letter-spacing: 1px;
             margin-bottom: 10px;
+          
         }
 
         .watermark img {
@@ -129,16 +132,6 @@
             border-top: 1px solid #808080;
             padding-top: 15px;
             text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .action-btns {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
         }
 
         button {
@@ -153,28 +146,6 @@
 
         button:active { border-color: #808080 #ffffff #ffffff #808080; }
 
-        /* Specific Biometric Styles */
-        #fpSetupBtn {
-            background-color: #000080;
-            color: #ffffff;
-            font-size: 11px;
-            display: none;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        #bioMsg {
-            font-size: 12px;
-            color: #008000;
-            font-weight: bold;
-            display: none;
-            padding: 10px;
-            border: 1px dashed #008000;
-            margin-bottom: 10px;
-            width: 90%;
-            background: rgba(0, 128, 0, 0.05);
-        }
-
         .system-footer {
             margin-top: 15px;
             width: 420px;
@@ -185,6 +156,7 @@
             font-family: "Courier New", monospace;
         }
 
+        /* Black & White Social Icons */
         .social-icons {
             margin-top: 12px;
             display: flex;
@@ -198,8 +170,14 @@
             transition: opacity 0.2s;
         }
 
-        .social-icons a:hover { opacity: 1; }
-        .social-icons img { width: 18px; height: 18px; }
+        .social-icons a:hover {
+            opacity: 1;
+        }
+
+        .social-icons img {
+            width: 18px;
+            height: 18px;
+        }
 
         #loadingOverlay {
             display: none;
@@ -265,6 +243,7 @@
             white-space: pre-wrap;
         }
 
+        /* Unified Logo Container */
         .modal-logos {
             display: flex;
             justify-content: center;
@@ -276,7 +255,11 @@
             filter: grayscale(1) contrast(1.2);
         }
 
-        .modal-logos img { height: 35px; width: 35px; object-fit: contain; }
+        .modal-logos img {
+            height: 35px;
+            width: 35px;
+            object-fit: contain;
+        }
     </style>
 </head>
 <body onload="startTime()">
@@ -306,23 +289,17 @@
 
             <div class="field-group">
                 <label>USERNAME:</label>
-                <input type="text" id="username" autocomplete="off" oninput="checkBiometricState()">
+                <input type="text" id="username" autocomplete="off">
             </div>
 
-            <div id="pinFieldGroup" class="field-group">
+            <div class="field-group">
                 <label>PASSWORD:</label>
                 <input type="password" id="pin" maxlength="6" onkeypress="return onlyNumbers(event)">
             </div>
 
             <div class="button-row">
-                <div id="bioMsg">BIOMETRIC AUTH ACTIVE: PLACE THUMB ON SENSOR</div>
-                
-                <button id="fpSetupBtn" onclick="setupBiometrics()">[ INITIALIZE TOUCH ID SENSOR ]</button>
-
-                <div class="action-btns">
-                    <button id="loginBtn" onclick="handleLogin()">LOGIN</button>
-                    <button onclick="location.reload()" style="margin-left:10px;">RESET</button>
-                </div>
+                <button onclick="handleLogin()">LOGIN</button>
+                <button onclick="location.reload()" style="margin-left:10px;">RESET</button>
             </div>
         </div>
     </div>
@@ -349,6 +326,8 @@
         KERNEL_BUILD_v1.0.0.24 (LEGACY) | NODE: PNG-24<br>
         SVR_STATUS: ATTACHED | DB_VERSION: 1994_BASE_FINAL
     </div>
+
+    <div id="glitchContainer"></div>
 
     <div id="loadingOverlay">
         <div style="font-weight:bold; letter-spacing:1px;" id="loadMsg">SYSTEM INITIALIZING...</div>
@@ -392,8 +371,12 @@
         }
 
         const employees = [
-            { name: "Terminal Manager", code: "UNDF-MGMT-001", undid: "UNDid-MGMT-ROOT", loginId: "manager01", pin: "111111", shift: "ADMIN_ACCESS" },
             { name: "Aiman Rahman", code: "UNDF-PNG-24017", undid: "UNDid-7A3F-92D1", loginId: "aiman17", pin: "593841", shift: "08:00–16:00" },
+            { name: "Siti Nur Balqis", code: "UNDF-PNG-24023", undid: "UNDid-4C9B-18E7", loginId: "siti23", pin: "748205", shift: "08:00–16:30" },
+            { name: "Daniel Lee", code: "UNDF-PNG-23005", undid: "UNDid-9F2D-77A4", loginId: "daniel05", pin: "316904", shift: "S2 12:15–22:30" },
+            { name: "Nurul Huda", code: "UNDF-PNG-24031", undid: "UNDid-2E6A-54C8", loginId: "nurul31", pin: "902673", shift: "S3 16:30–22:30" },
+            { name: "Faris Hakim", code: "UNDF-PNG-22001", undid: "UNDid-1B8D-33F2", loginId: "faris01", pin: "185739", shift: "08:00-22:30" },
+            { name: "Terminal Manager", code: "UNDF-MGMT-001", undid: "UNDid-MGMT-ROOT", loginId: "manager01", pin: "111111", shift: "ADMIN_ACCESS" },
             { name: "Demo Account", code: "/NULL", undid: "/NULL", loginId: "demo", pin: "000000", shift: "RESTRICTED" },
             { name: "Restricted Demo", code: "/SUSP", undid: "/RESC", loginId: "demo1", pin: "000000", shift: "RESTRICTED" }
         ];
@@ -402,115 +385,6 @@
             return (e.charCode >= 48 && e.charCode <= 57);
         }
 
-        // --- REAL BIOMETRIC (WEBAUTHN) LOGIC ---
-
-        function checkBiometricState() {
-            const userInp = document.getElementById('username').value.trim().toLowerCase();
-            const setupBtn = document.getElementById('fpSetupBtn');
-            const loginBtn = document.getElementById('loginBtn');
-            const bioMsg = document.getElementById('bioMsg');
-            const pinGroup = document.getElementById('pinFieldGroup');
-
-            // Check if this specific manager has registered on this device
-            const isRegistered = localStorage.getItem("und_manager_bio_id");
-
-            if (userInp === "manager01") {
-                if (!isRegistered) {
-                    setupBtn.style.display = "block";
-                    loginBtn.style.display = "block";
-                    bioMsg.style.display = "none";
-                    pinGroup.style.display = "flex";
-                } else {
-                    setupBtn.style.display = "none";
-                    loginBtn.style.display = "none";
-                    bioMsg.style.display = "block";
-                    pinGroup.style.display = "none";
-                    verifyBiometrics(); // Auto-trigger hardware prompt
-                }
-            } else {
-                setupBtn.style.display = "none";
-                loginBtn.style.display = "block";
-                bioMsg.style.display = "none";
-                pinGroup.style.display = "flex";
-            }
-        }
-
-        // 1. Create Credential (The Apple Touch ID "Setup" experience)
-        async function setupBiometrics() {
-            const p = document.getElementById('pin').value;
-            if (p !== "111111") {
-                showModal("ADMIN PIN REQUIRED TO INITIALIZE BIOMETRICS.", false);
-                return;
-            }
-
-            if (!window.PublicKeyCredential) {
-                showModal("HARDWARE ERROR: THIS BROWSER DOES NOT SUPPORT BIOMETRICS.", false);
-                return;
-            }
-
-            // Real WebAuthn Challenge (Simplified for Frontend-only demo)
-            const challenge = new Uint8Array(32); 
-            window.crypto.getRandomValues(challenge);
-            const userID = new Uint8Array(16);
-            window.crypto.getRandomValues(userID);
-
-            const createCredentialOptions = {
-                publicKey: {
-                    challenge: challenge,
-                    rp: { name: "UND Performance Terminal" },
-                    user: {
-                        id: userID,
-                        name: "manager01",
-                        displayName: "Terminal Manager"
-                    },
-                    pubKeyCredParams: [{ alg: -7, type: "public-key" }], // ES256
-                    authenticatorSelection: { authenticatorAttachment: "platform" }, // Forces TouchID/WindowsHello
-                    timeout: 60000
-                }
-            };
-
-            try {
-                const credential = await navigator.credentials.create(createCredentialOptions);
-                if (credential) {
-                    localStorage.setItem("und_manager_bio_id", "registered_active");
-                    showModal("TOUCH ID SUCCESS: BIOMETRIC HARDWARE LINKED TO MANAGER_01.", false);
-                    checkBiometricState();
-                }
-            } catch (err) {
-                console.error(err);
-                showModal("SETUP CANCELLED: HARDWARE REJECTED OR TIMED OUT.", false);
-            }
-        }
-
-        // 2. Verify Credential (The "Place thumb on sensor" login experience)
-        async function verifyBiometrics() {
-            const challenge = new Uint8Array(32);
-            window.crypto.getRandomValues(challenge);
-
-            const getCredentialOptions = {
-                publicKey: {
-                    challenge: challenge,
-                    timeout: 60000,
-                    allowCredentials: [], // Allows any registered platform authenticator
-                    userVerification: "required"
-                }
-            };
-
-            try {
-                const assertion = await navigator.credentials.get(getCredentialOptions);
-                if (assertion) {
-                    const user = employees.find(e => e.loginId === "manager01");
-                    localStorage.setItem("loggedInUser", JSON.stringify(user));
-                    startLoading();
-                }
-            } catch (err) {
-                console.error("Biometric Auth Failed", err);
-                // If they cancel, let them reset
-            }
-        }
-
-        // --- STANDARD LOGIN LOGIC ---
-
         function handleLogin() {
             const u = document.getElementById('username').value.trim().toLowerCase();
             const p = document.getElementById('pin').value;
@@ -518,13 +392,13 @@
 
             if (user && p === user.pin) {
                 if(u === "demo1") {
-                    showModal(`⚠️ ACCOUNT PERMANENTLY SUSPENDED...`, true);
+                    showModal(`⚠️ ACCOUNT PERMANENTLY SUSPENDED\n\nNotice of Formal Termination\nYour account access has been revoked effective immediately. This action has been taken following a comprehensive internal audit which identified activities that constitute a material breach of our Terms of Service and a violation of statutory legal frameworks.\n\nBasis for Enforcement\nOur systems detected behavior associated with cross-jurisdictional legal violations or prohibited illegal activities. This includes, but is not limited to:\n\nUnauthorized Data Transmission: Engaging in the distribution of restricted or illicit materials.\n\nFraudulent Activity: Usage of the platform to facilitate financial irregularities or identity misrepresentation.\n\nSystem Interference: Attempts to circumvent security protocols or engage in cross-platform exploits.\n\nLegal Compliance & Disclosure\nIn accordance with the Global Cybersecurity Enforcement Act and local data retention laws, we are obligated to maintain a record of your account history, including:\n- Metadata logs and IP access history.\n- Transaction records and communication timestamps.\n- Encrypted identity verification documents.\n\nNOTICE: We reserve the right to cooperate with law enforcement agencies and provide requested data packets should a formal subpoena or warrant be issued regarding the activities linked to this UID.\n\nFinality of Decision\nThis suspension is permanent. Any attempts to create secondary accounts or bypass this hardware-level ban will be flagged and suppressed. Assets, credits, or data associated with this account are now forfeited and inaccessible.`, true);
                     return;
                 }
                 localStorage.setItem("loggedInUser", JSON.stringify(user));
                 startLoading();
             } else {
-                showModal("ACCESS DENIED: INVALID CREDENTIALS.", false);
+                showModal("ACCESS DENIED: USER NOT FOUND OR INVALID 6-DIGIT PIN.", false);
             }
         }
 
@@ -548,7 +422,7 @@
                     clearInterval(interval);
                     window.location.href = "menu.html";
                 }
-            }, 100);
+            }, 150);
         }
 
         function showModal(m, showLogos) {
